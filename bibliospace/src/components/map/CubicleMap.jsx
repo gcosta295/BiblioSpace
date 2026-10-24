@@ -4,7 +4,7 @@ import { estadoCubiculo } from '../../utils/time'
 export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, seleccionado, esAdmin, onSelect }) {
   const delPiso = cubiculos.filter((c) => Number(c.Piso) === piso)
   return (
-    <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-3 sm:gap-4">
+    <div className="seat-map">
       {delPiso.map((c) => {
         const { estado, reserva } = estadoCubiculo(c, reservas, fecha, hora)
         const sel = seleccionado && Number(seleccionado.Piso) === piso && seleccionado.ID_Cubiculo === c.ID_Cubiculo

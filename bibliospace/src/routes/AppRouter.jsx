@@ -7,7 +7,8 @@ import AdminPage from '../pages/AdminPage'
 import HistoryPage from '../pages/HistoryPage'
 
 function AdminRoute({ children }) {
-  const { rol } = useAuth()
+  const { rol, perfilCargando } = useAuth()
+  if (perfilCargando) return <p className="admin-access-loading" role="status">Verificando permisos…</p>
   return rol === 'admin' ? children : <Navigate to="/" replace />
 }
 
