@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { crearReserva } from '../../api/sheets'
+import { crearReserva } from '../../api/library'
 import { useAuth } from '../../context/AuthContext'
 import { capacidadDe, CIERRE, validarInvitado, validarReserva } from '../../services/reservationRules'
 import { conocidos, horaTexto } from '../../utils/time'
@@ -37,7 +37,7 @@ export default function ReservationModal({ cub, reservas, fecha, hora, onClose, 
       piso: cub.Piso, cubiculoId: cub.ID_Cubiculo, horaInicio: horaTexto(hora),
     })
     setEnviando(false)
-    if (res.status === 'ok') onCreated(`Te enviamos un correo: confirma en ${res.minutos} minutos o la reserva (${res.franja}) se cancelará.`)
+    if (res.status === 'ok') onCreated(`Reserva confirmada: ${res.franja}`)
     else setError(res.mensaje || 'No se pudo crear la reserva.')
   }
 

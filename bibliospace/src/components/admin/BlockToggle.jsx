@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { bloquearCubiculo } from '../../api/sheets'
+import { bloquearCubiculo } from '../../api/library'
 
 export default function BlockToggle({ cub, correo, onChanged, onError }) {
   const bloqueado = cub.Estado === 'Bloqueado'
