@@ -28,6 +28,8 @@ const aReserva = (r) => ({
   ID_Cubiculo: r.numero,
   Piso: r.piso,
   Correo_Estudiante: r.titular,
+  Nombre: r.nombre,
+  Carnet: r.carnet,
   Miembros: r.miembros.join(','),
   Personas: r.personas,
   Estado: ESTADO_RESERVA[r.estado] ?? r.estado,
@@ -69,7 +71,7 @@ export const obtenerPerfil = async (correo) => {
   return res.status === 'ok' ? { status: 'ok', rol: res.valor } : res
 }
 
-// { correo, piso, cubiculoId, fecha: 'YYYY-MM-DD', horaInicio: 'HH:00', duracion: 1|2, miembros: [correos] }
+// { correo, nombre, carnet, piso, cubiculoId, fecha: 'YYYY-MM-DD', horaInicio: 'HH:00', duracion: 1|2, miembros: [correos] }
 export const crearReserva = (d) =>
   rpc('crear_reserva', {
     p_correo: d.correo,
@@ -78,6 +80,8 @@ export const crearReserva = (d) =>
     p_hora: parseInt(d.horaInicio, 10),
     p_duracion: d.duracion,
     p_miembros: d.miembros,
+    p_nombre: d.nombre,
+    p_carnet: d.carnet,
   })
 
 export const cancelarReserva = (correo, id) => rpc('cancelar_reserva', { p_correo: correo, p_id: id })
