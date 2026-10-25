@@ -7,12 +7,21 @@ import MemberPicker from './MemberPicker'
 
 const field = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
 
-export default function ReservationModal({ cub, reservas, fecha, hora, onClose, onCreated }) {
+export default function ReservationModal({
+  cub,
+  reservas,
+  fecha,
+  hora,
+  duracionInicial = 1,
+  integrantesIniciales = [],
+  onClose,
+  onCreated,
+}) {
   const { correo } = useAuth()
   const [nombre, setNombre] = useState('')
   const [carnet, setCarnet] = useState('')
-  const [duracion, setDuracion] = useState(1)
-  const [miembros, setMiembros] = useState([])
+  const [duracion, setDuracion] = useState(duracionInicial)
+  const [miembros, setMiembros] = useState(integrantesIniciales)
   const [error, setError] = useState('')
   const [enviando, setEnviando] = useState(false)
 
