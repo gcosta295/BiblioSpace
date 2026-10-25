@@ -17,11 +17,17 @@ const leerCorreo = () => {
 export function AuthProvider({ children }) {
   const [correo, setCorreoState] = useState(leerCorreo)
   const [rol, setRol] = useState('user')
+  const [perfilCorreo, setPerfilCorreo] = useState('')
+  const perfilCargando = Boolean(correo) && perfilCorreo !== correo
 
   useEffect(() => {
     if (!correo) return
     let activo = true
-    obtenerPerfil(correo).then((p) => activo && setRol(p.status === 'ok' ? p.rol : 'user'))
+    obtenerPerfil(correo).then((perfil) => {
+      if (!activo) return
+      setRol(perfil.status === 'ok' ? perfil.rol : 'user')
+      setPerfilCorreo(correo)
+    })
     return () => {
       activo = false
     }
@@ -33,11 +39,14 @@ export function AuthProvider({ children }) {
     if (c && !c.endsWith(DOMINIO)) return `Usa tu correo institucional (${DOMINIO}).`
     localStorage.setItem(KEY, c)
     setCorreoState(c)
-    if (!c) setRol('user')
+    if (!c) {
+      setRol('user')
+      setPerfilCorreo('')
+    }
     return null
   }
 
-  return <AuthContext value={{ correo, rol, setCorreo }}>{children}</AuthContext>
+  return <AuthContext value={{ correo, rol, perfilCargando, setCorreo }}>{children}</AuthContext>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

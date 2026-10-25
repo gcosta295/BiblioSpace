@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 import logoHeader from '../../assets/logo-header.png'
@@ -74,9 +74,12 @@ const link = ({ isActive }) => `site-nav-link${isActive ? ' is-active' : ''}`
 
 export default function Layout() {
   const { rol } = useAuth()
+  const { pathname } = useLocation()
+  const adminDashboard = rol === 'admin' && pathname === '/admin'
+
   return (
-    <div className="site-shell">
-      <header className="site-header">
+    <div className={`site-shell${adminDashboard ? ' admin-shell' : ''}`}>
+      {!adminDashboard && <header className="site-header">
         <div className="site-header-inner">
           <NavLink to="/" end className="brand-link" aria-label="BiblioSpace, inicio">
             <img src={logoHeader} alt="BiblioSpace — Biblioteca Universidad Metropolitana" />
@@ -89,11 +92,11 @@ export default function Layout() {
           </nav>
           <CorreoInput />
         </div>
-      </header>
+      </header>}
       <main className="site-main">
         <Outlet />
       </main>
-      <footer className="site-footer">
+      {!adminDashboard && <footer className="site-footer">
         <div className="site-footer-inner">
           <div className="footer-description">
             <img src={logoFooter} alt="BiblioSpace" />
@@ -101,7 +104,7 @@ export default function Layout() {
           </div>
           <p className="footer-copyright">© 2023 BiblioSpace · Universidad Metropolitana · Todos los derechos reservados.</p>
         </div>
-      </footer>
+      </footer>}
     </div>
   )
 }

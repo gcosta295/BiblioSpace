@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { bloquearCubiculo } from '../../api/sheets'
 
-export default function BlockToggle({ cub, correo, onChanged, onError }) {
+import lockIcon from '../../assets/admin/table-lock.svg'
+import greenKeyIcon from '../../assets/admin/table-key-green.svg'
+
+export default function BlockToggle({ cub, correo, onChanged, onError, compact = false, icon = lockIcon }) {
   const bloqueado = cub.Estado === 'Bloqueado'
   const [pidiendo, setPidiendo] = useState(false)
   const [motivo, setMotivo] = useState('')
@@ -20,15 +23,28 @@ export default function BlockToggle({ cub, correo, onChanged, onError }) {
 
   if (bloqueado) {
     return (
-      <button disabled={enviando} onClick={() => ejecutar(false)} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white disabled:opacity-50">
-        Desbloquear
+      <button
+        type="button"
+        disabled={enviando}
+        onClick={() => ejecutar(false)}
+        aria-label="Desbloquear cubículo"
+        title="Desbloquear cubículo"
+        className={compact ? 'admin-icon-action' : 'rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white disabled:opacity-50'}
+      >
+        {compact ? <img src={greenKeyIcon} alt="" /> : 'Desbloquear'}
       </button>
     )
   }
   if (!pidiendo) {
     return (
-      <button onClick={() => setPidiendo(true)} className="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50">
-        Bloquear
+      <button
+        type="button"
+        onClick={() => setPidiendo(true)}
+        aria-label="Bloquear cubículo"
+        title="Bloquear cubículo"
+        className={compact ? 'admin-icon-action' : 'rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50'}
+      >
+        {compact ? <img src={icon} alt="" /> : 'Bloquear'}
       </button>
     )
   }
@@ -41,10 +57,10 @@ export default function BlockToggle({ cub, correo, onChanged, onError }) {
         placeholder="Motivo (mantenimiento…)"
         className="min-w-0 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm"
       />
-      <button disabled={enviando} onClick={() => ejecutar(true)} className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white disabled:opacity-50">
+      <button type="button" disabled={enviando} onClick={() => ejecutar(true)} className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white disabled:opacity-50">
         {enviando ? '…' : 'Confirmar'}
       </button>
-      <button onClick={() => setPidiendo(false)} className="rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
+      <button type="button" onClick={() => setPidiendo(false)} className="rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
         Volver
       </button>
     </div>
