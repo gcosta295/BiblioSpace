@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { crearCubiculo } from '../api/library'
+import { crearCubiculo, obtenerLogAdmin } from '../api/library'
 import BlockToggle from '../components/admin/BlockToggle'
+import ReleaseDialog from '../components/admin/ReleaseDialog'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
 import { aHoras, estadoCubiculo, hoyISO, horaActual, OCUPA } from '../utils/time'
@@ -93,6 +94,19 @@ const cubicleReservation = (cubicle, reservations, date, hour) => {
     : { status: 'disponible', reservation: null }
 }
 
+const aMilisegundos = (fecha) => new Date(String(fecha || '').replace(' ', 'T')).getTime()
+
+const tiempoRelativo = (timestamp, respaldo = '') => {
+  if (!Number.isFinite(timestamp)) return respaldo
+  const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60000))
+  if (minutes < 1) return 'Hace un momento'
+  if (minutes < 60) return `Hace ${minutes} minuto${minutes === 1 ? '' : 's'}`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `Hace ${hours} hora${hours === 1 ? '' : 's'}`
+  const days = Math.floor(hours / 24)
+  return `Hace ${days} día${days === 1 ? '' : 's'}`
+}
+
 const activityFor = (reservation) => {
   const cubicle = `C${reservation.ID_Cubiculo} Piso ${reservation.Piso}`
   const time = formatHour(aHoras(reservation.Franja_Horaria)[0])
@@ -124,20 +138,45 @@ const activityFor = (reservation) => {
     detail: `Se actualizó la reserva de ${cubicle}.`,
     icon: grayBullet,
   }
-  const createdAt = String(reservation.Fecha_Creacion || '').replace(' ', 'T')
-  const timestamp = new Date(createdAt).getTime()
-  const minutes = Number.isFinite(timestamp) ? Math.max(0, Math.floor((Date.now() - timestamp) / 60000)) : null
-  const relativeTime = minutes === null
-    ? reservation.Fecha || ''
-    : minutes < 1
-      ? 'Hace un momento'
-      : minutes < 60
-        ? `Hace ${minutes} minuto${minutes === 1 ? '' : 's'}`
-        : minutes < 1440
-          ? `Hace ${Math.floor(minutes / 60)} hora${Math.floor(minutes / 60) === 1 ? '' : 's'}`
-          : `Hace ${Math.floor(minutes / 1440)} día${Math.floor(minutes / 1440) === 1 ? '' : 's'}`
+  const timestamp = aMilisegundos(reservation.Fecha_Creacion)
+  return { ...item, relativeTime: tiempoRelativo(timestamp, reservation.Fecha), timestamp }
+}
 
-  return { ...item, relativeTime, timestamp }
+// El log de administración (bloqueos, habilitaciones y liberaciones) se mezcla
+// con las reservas en el mismo panel de actividad.
+const activityForLog = (entry) => {
+  const cubicle = `C${entry.ID_Cubiculo} Piso ${entry.Piso}`
+  const admin = displayName({ Correo_Estudiante: entry.Correo_Admin })
+  const motivo = entry.Motivo ? ` Motivo: ${entry.Motivo}.` : ''
+  const entries = {
+    LIBERACION: {
+      title: 'Liberación Manual',
+      detail:
+        `El admin ${admin} liberó el cubículo ${cubicle}` +
+        (entry.Ocupantes.length
+          ? ` y expulsó a ${entry.Ocupantes.length} ${entry.Ocupantes.length === 1 ? 'persona' : 'personas'}.`
+          : '.') +
+        motivo,
+      icon: orangeBullet,
+    },
+    BLOQUEO: {
+      title: 'Cubículo Bloqueado',
+      detail: `${cubicle} fue bloqueado por ${admin}.${motivo}`,
+      icon: redBullet,
+    },
+    HABILITACION: {
+      title: 'Cubículo Habilitado',
+      detail: `${cubicle} volvió a estar disponible.`,
+      icon: grayBullet,
+    },
+  }
+  const item = entries[entry.Accion] || {
+    title: 'Acción de Administración',
+    detail: `Se actualizó ${cubicle}.`,
+    icon: grayBullet,
+  }
+  const timestamp = aMilisegundos(entry.Fecha)
+  return { ...item, relativeTime: tiempoRelativo(timestamp, entry.Fecha), timestamp }
 }
 
 function StatCard({ label, value, hint, accent, progress, trend }) {
@@ -211,13 +250,29 @@ function UsageChart({ reservations, date }) {
 }
 
 export default function AdminPage() {
-  const { correo } = useAuth()
+  const { correo, rol } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [piso, setPiso] = useState(1)
   const [pisoNuevo, setPisoNuevo] = useState(1)
   const [enviando, setEnviando] = useState(false)
+  const [logAdmin, setLogAdmin] = useState([])
+  const [liberando, setLiberando] = useState(null)
+
+  // El log de administración solo lo puede leer un admin, así que va aparte de useLibrary.
+  const recargarLog = useCallback(async () => {
+    if (!correo || rol !== 'admin') {
+      setLogAdmin([])
+      return
+    }
+    setLogAdmin(await obtenerLogAdmin(correo))
+  }, [correo, rol])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    recargarLog()
+  }, [recargarLog])
 
   const hoy = hoyISO()
   const hora = horaActual()
@@ -273,8 +328,7 @@ export default function AdminPage() {
     })
     .sort((first, second) => Number(first.cubicle.ID_Cubiculo) - Number(second.cubicle.ID_Cubiculo))
 
-  const recentActivities = [...reservas]
-    .map(activityFor)
+  const recentActivities = [...reservas.map(activityFor), ...logAdmin.map(activityForLog)]
     .sort((first, second) => (second.timestamp || 0) - (first.timestamp || 0))
     .slice(0, 4)
 
@@ -284,6 +338,7 @@ export default function AdminPage() {
   const informarCambio = (mensaje) => {
     setAviso({ tipo: 'ok', texto: mensaje })
     recargar()
+    recargarLog()
   }
 
   const enviarFormulario = async (event) => {
@@ -439,11 +494,21 @@ export default function AdminPage() {
                           </td>
                           <td>
                             <div className="admin-row-actions">
-                              {(status === 'ocupado' || status === 'reservado') && (
-                                <span className="admin-icon-box orange" aria-hidden="true" title="Reserva activa">
+                              {status === 'ocupado' ? (
+                                <button
+                                  type="button"
+                                  className="admin-icon-action orange"
+                                  aria-label={`Liberar cubículo ${cubicle.ID_Cubiculo}`}
+                                  title="Liberar cubículo"
+                                  onClick={() => setLiberando({ cubicle, reservation })}
+                                >
+                                  <img src={keyIcon} alt="" />
+                                </button>
+                              ) : status === 'reservado' ? (
+                                <span className="admin-icon-box orange" aria-hidden="true" title="Reserva próxima">
                                   <img src={keyIcon} alt="" />
                                 </span>
-                              )}
+                              ) : null}
                               <BlockToggle
                                 cub={cubicle}
                                 correo={correo}
@@ -517,6 +582,20 @@ export default function AdminPage() {
           </div>
         </div>
       </main>
+
+      {liberando && (
+        <ReleaseDialog
+          cub={liberando.cubicle}
+          reserva={liberando.reservation}
+          correo={correo}
+          onClose={() => setLiberando(null)}
+          onReleased={(mensaje) => {
+            setLiberando(null)
+            informarCambio(mensaje)
+          }}
+          onError={(texto) => setAviso({ tipo: 'error', texto })}
+        />
+      )}
     </div>
   )
 }
