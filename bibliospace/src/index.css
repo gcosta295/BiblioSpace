@@ -1845,6 +1845,167 @@ select:focus-visible {
   }
 }
 
+/* Diálogo de liberación manual (solo admin) */
+.admin-form-field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #241f1c;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.admin-dialog-backdrop {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  padding: 16px;
+  align-items: center;
+  justify-content: center;
+  background: rgb(36 31 28 / 45%);
+  inset: 0;
+}
+
+.admin-dialog {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 32px);
+  flex-direction: column;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgb(36 31 28 / 25%);
+  overflow: hidden;
+}
+
+.admin-dialog-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.admin-dialog-step {
+  color: #e68200;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-dialog-header h2 {
+  margin: 4px 0 0;
+  color: #212e84;
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.admin-dialog-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 24px;
+  overflow-y: auto;
+}
+
+.admin-dialog-summary {
+  display: grid;
+  margin: 0;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.admin-dialog-summary dt {
+  color: #9ca3af;
+  font-size: 10px;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+
+.admin-dialog-summary dd {
+  margin: 2px 0 0;
+  color: #241f1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-dialog-people {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 20px;
+  list-style: none;
+  word-break: break-all;
+}
+
+.admin-dialog-help {
+  margin: 0;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.admin-dialog-warning {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.admin-dialog-actions {
+  display: flex;
+  padding: 14px 24px 20px;
+  gap: 8px;
+  justify-content: flex-end;
+  border-top: 1px solid #f1f1f1;
+}
+
+.admin-dialog-actions button {
+  min-height: 38px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-dialog-ghost {
+  background: transparent;
+  color: #4b5563;
+}
+
+.admin-dialog-ghost:hover {
+  background: #f3f4f6;
+}
+
+.admin-dialog-primary {
+  background: #212e84;
+  color: #fff;
+}
+
+.admin-dialog-danger {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.admin-dialog-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.admin-icon-action.orange:hover {
+  background: #fff1e0;
+}
+
 @media (max-width: 1020px) {
   .admin-stats {
     gap: 12px;
