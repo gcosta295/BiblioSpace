@@ -1976,3 +1976,89 @@ select:focus-visible {
     padding-left: 16px;
   }
 }
+
+/* ───────── Plano del piso (HU2) ─────────
+   Mantiene las tarjetas .seat-card de la vista de inicio y solo cambia su
+   colocación: de cuadrícula a posición física, tomada de los datos. */
+
+.floor-figure {
+  margin: 0;
+}
+
+.floor-plan {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: 295px;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 5%);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.floor-slot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* Referencias físicas: dan la orientación que una cuadrícula no puede dar */
+.floor-ref {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.1;
+  color: #6b6b6b;
+  text-align: center;
+}
+
+.floor-ref span {
+  padding: 0 2px;
+}
+
+.floor-ref-ventanal { border: 1px solid #8fb8dc; background: rgb(191 217 242 / 55%); }
+.floor-ref-entrada { border: 1px solid #2e2f86; background: rgb(46 47 134 / 14%); }
+.floor-ref-escalera { border: 1px solid #c8cbd0; background: rgb(229 231 235 / 90%); }
+.floor-ref-estanteria { border: 1px solid #bfb2a0; background: rgb(217 207 192 / 70%); }
+.floor-ref-mostrador { border: 1px solid #d9790a; background: rgb(244 135 4 / 20%); }
+
+/* Etiquetas verticales cuando la referencia es más alta que ancha */
+.floor-ref-entrada span,
+.floor-ref-escalera span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.floor-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgb(244 135 4 / 12%);
+  color: #8a4e06;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.floor-note code {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .floor-plan { aspect-ratio: 3 / 4; }
+  .floor-ref { font-size: 9px; }
+}
+
+/* Criterio de aceptación de HU2: "si un cubículo está bloqueado no debe poder
+   reservarse y debe salir más opaco en el mapa". Lo primero ya lo garantiza el
+   atributo disabled de la tarjeta; esto resuelve lo segundo.
+   Va acotado al mapa para no alterar la tarjeta en ninguna otra vista. */
+.floor-plan .seat-card-bloqueado {
+  opacity: 0.55;
+}
+
+.floor-plan .seat-card-bloqueado .seat-icon {
+  opacity: 0.7;
+}
