@@ -19,6 +19,10 @@ const aCubiculo = (c) => ({
   Capacidad: CAPACIDAD,
   Estado: c.estado === 'BLOQUEADO' ? 'Bloqueado' : 'Disponible',
   Motivo_Bloqueo: c.motivo,
+  // Posición física dentro del piso, en porcentaje. Llegan vacías mientras
+  // `listar_cubiculos` no devuelva las columnas pos_x / pos_y.
+  Pos_X: c.pos_x,
+  Pos_Y: c.pos_y,
 })
 
 const aReserva = (r) => ({
