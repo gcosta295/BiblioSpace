@@ -110,3 +110,30 @@ export const bloquearCubiculo = (correo, piso, cubiculoId, bloquear, motivo = ''
     p_bloquear: bloquear,
     p_motivo: motivo,
   })
+
+// Solo admin: expulsa a los ocupantes y deja el cubículo disponible. El motivo es obligatorio.
+// -> { status: 'ok', cubiculo, id_reserva, ocupantes: [correos], personas }
+export const liberarCubiculo = (correo, piso, cubiculoId, motivo) =>
+  rpc('liberar_cubiculo', {
+    p_correo: correo,
+    p_cubiculo: idCubiculo(piso, cubiculoId),
+    p_motivo: motivo,
+  })
+
+// Solo admin: bloqueos, habilitaciones y liberaciones, de lo más reciente a lo más antiguo.
+export const obtenerLogAdmin = async (correo, limite = 20) => {
+  const { data, error } = await supabase.rpc('listar_log_admin', { p_correo: correo, p_limite: limite })
+  if (error) {
+    console.error('Error al leer el log de administración:', error.message)
+    return []
+  }
+  return data.map((l) => ({
+    ID_Cubiculo: Number(String(l.id_cubiculo).split('-')[1]),
+    Piso: Number(String(l.id_cubiculo).split('-')[0]),
+    Accion: l.accion,
+    Correo_Admin: l.correo_admin,
+    Motivo: l.motivo,
+    Ocupantes: l.ocupantes ?? [],
+    Fecha: l.marca_tiempo,
+  }))
+}
