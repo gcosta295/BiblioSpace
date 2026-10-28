@@ -145,8 +145,8 @@ begin
   if cardinality(v_norm) <> (select count(distinct m) from unnest(v_norm) m) then
     raise exception 'Hay miembros repetidos.';
   end if;
-  if 1 + cardinality(v_norm) < 2 then raise exception 'Se necesitan al menos 2 personas para reservar.'; end if;
-  if 1 + cardinality(v_norm) > 6 then raise exception 'Máximo 6 personas por cubículo.'; end if;
+  if cardinality(v_norm) < 2 then raise exception 'Se necesitan al menos 2 personas para reservar.'; end if;
+  if cardinality(v_norm) > 5 then raise exception 'Máximo 6 personas por cubículo.'; end if;
 
   if en_reserva(v_correo) then
     raise exception 'Ya estás en una reserva activa. Cancélala para reservar otro cubículo.';
@@ -217,7 +217,7 @@ begin
   update reservas set estado = 'CANCELADA', cancelada_en = now() where id_reserva = p_id;
 end $$;
 
--- 5) Integrantes (mínimo 2, máximo 6)
+-- 5) Integrantes (mínimo 2, máximo 5)
 create or replace function agregar_miembro(p_correo text, p_id uuid, p_miembro text) returns void
 language plpgsql security definer set search_path = public as $$
 declare
@@ -238,7 +238,7 @@ begin
     raise exception 'Ya forma parte de esta reserva.';
   end if;
   if en_reserva(v_m, p_id) then raise exception '% ya está en otro cubículo.', v_m; end if;
-  if (select count(*) from participantes_reserva where id_reserva = p_id) >= 6 then
+  if (select count(*) from participantes_reserva where id_reserva = p_id) > 5 then
     raise exception 'Máximo 6 personas por cubículo.';
   end if;
 
@@ -265,7 +265,7 @@ begin
   if not exists (select 1 from participantes_reserva where id_reserva = p_id and correo_participante = v_m) then
     raise exception 'No forma parte de esta reserva.';
   end if;
-  if (select count(*) from participantes_reserva where id_reserva = p_id) <= 2 then
+  if (select count(*) from participantes_reserva where id_reserva = p_id) < 2 then
     raise exception 'Se necesitan al menos 2 personas. Cancela la reserva si ya no la usarán.';
   end if;
 
