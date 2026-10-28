@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { crearReserva } from '../../api/library'
 import { useAuth } from '../../context/AuthContext'
-import { capacidadDe, CIERRE, validarInvitado, validarReserva } from '../../services/reservationRules'
+import { capacidadDe, CIERRE, MIN_PERSONAS, validarInvitado, validarReserva } from '../../services/reservationRules'
 import { conocidos, horaTexto } from '../../utils/time'
 import MemberPicker from './MemberPicker'
 
@@ -74,7 +74,7 @@ export default function ReservationModal({
         </label>
         <div>
           <p className="mb-1 text-sm text-slate-500">
-            Integrantes ({1 + miembros.length}/{capacidadDe(cub)}) · mínimo 2
+            Integrantes ({1 + miembros.length}/{capacidadDe(cub)}) · mínimo {MIN_PERSONAS}
           </p>
           <MemberPicker
             titular={correo || 'Guarda tu correo arriba a la derecha'}

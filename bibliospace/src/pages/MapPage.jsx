@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
-import { APERTURA, CIERRE, MAX_RESERVAS_DIA, validarInvitado } from '../services/reservationRules'
+import { APERTURA, CIERRE, MAX_RESERVAS_DIA, MIN_PERSONAS, validarInvitado } from '../services/reservationRules'
 import { aHoras, conocidos, estadoVisible, horaActual, horaTexto, hoyISO, miembrosDe, reservaVigente } from '../utils/time'
 import CubicleMap from '../components/map/CubicleMap'
 import Legend from '../components/map/Legend'
@@ -211,7 +211,7 @@ export default function MapPage() {
 
               <div className="booking-members">
                 <p className="booking-members-label">
-                  Integrantes del grupo ({1 + miembros.length}/{seleccionado ? seleccionado.Capacidad : 6}) · mínimo 2
+                  Integrantes del grupo ({1 + miembros.length}/{seleccionado ? seleccionado.Capacidad : 6}) · mínimo {MIN_PERSONAS}
                 </p>
                 {correo ? (
                   <MemberPicker
@@ -240,7 +240,7 @@ export default function MapPage() {
               <button
                 type="button"
                 className="booking-submit"
-                disabled={!seleccionado || !correo || cargando || miembros.length < 1}
+                disabled={!seleccionado || !correo || cargando || miembros.length < MIN_PERSONAS - 1}
                 onClick={() => setMostrarModal(true)}
               >
                 {seleccionado ? 'Confirmar Reserva' : 'Selecciona un cubículo'}

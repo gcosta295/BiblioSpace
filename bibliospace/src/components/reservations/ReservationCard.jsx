@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { agregarMiembro, quitarMiembro } from '../../api/library'
+import { abandonarReserva, agregarMiembro, quitarMiembro } from '../../api/library'
 import { CANCELAR_ANTES_MIN, capacidadDe, MIN_PERSONAS, puedeCancelar, validarInvitado } from '../../services/reservationRules'
 import { conocidos, miembrosDe } from '../../utils/time'
 import CancelDialog from './CancelDialog'
@@ -19,6 +19,13 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
     if (res.status !== 'ok') return res.mensaje || 'No se pudo agregar.'
     onChanged('Integrante agregado.')
     return null
+  }
+
+  const abandonar = async () => {
+    if (!window.confirm('¿Seguro que quieres abandonar este cubículo?')) return
+    const res = await abandonarReserva(correo, reserva.ID_Reserva)
+    if (res.status === 'ok') onChanged(res.mensaje)
+    else setErrorGlobal(res.mensaje || 'No se pudo abandonar la reserva.')
   }
 
   const quitar = async (m) => {
@@ -55,6 +62,11 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
         />
         {!esTitular && <p className="mt-2 text-xs text-slate-500">Solo el titular puede modificar o cancelar la reserva.</p>}
       </div>
+      {!esTitular && (
+        <button onClick={abandonar} className="rounded-md border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+          Abandonar cubículo
+        </button>
+      )}
       {esTitular && (
         <div>
           <button
