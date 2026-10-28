@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { crearReserva } from '../../api/sheets'
+import { crearReserva } from '../../api/library'
 import { useAuth } from '../../context/AuthContext'
 import { capacidadDe, CIERRE, validarInvitado, validarReserva } from '../../services/reservationRules'
 import { conocidos, horaTexto } from '../../utils/time'
@@ -7,12 +7,21 @@ import MemberPicker from './MemberPicker'
 
 const field = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
 
-export default function ReservationModal({ cub, reservas, fecha, hora, onClose, onCreated }) {
+export default function ReservationModal({
+  cub,
+  reservas,
+  fecha,
+  hora,
+  duracionInicial = 1,
+  integrantesIniciales = [],
+  onClose,
+  onCreated,
+}) {
   const { correo } = useAuth()
   const [nombre, setNombre] = useState('')
   const [carnet, setCarnet] = useState('')
-  const [duracion, setDuracion] = useState(1)
-  const [miembros, setMiembros] = useState([])
+  const [duracion, setDuracion] = useState(duracionInicial)
+  const [miembros, setMiembros] = useState(integrantesIniciales)
   const [error, setError] = useState('')
   const [enviando, setEnviando] = useState(false)
 
@@ -37,7 +46,7 @@ export default function ReservationModal({ cub, reservas, fecha, hora, onClose, 
       piso: cub.Piso, cubiculoId: cub.ID_Cubiculo, horaInicio: horaTexto(hora),
     })
     setEnviando(false)
-    if (res.status === 'ok') onCreated(`Te enviamos un correo: confirma en ${res.minutos} minutos o la reserva (${res.franja}) se cancelará.`)
+    if (res.status === 'ok') onCreated(`Reserva confirmada: ${res.franja}`)
     else setError(res.mensaje || 'No se pudo crear la reserva.')
   }
 

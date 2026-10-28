@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cancelarReserva } from '../../api/sheets'
+import { cancelarReserva } from '../../api/library'
 
 export default function CancelDialog({ reserva, correo, onClose, onCancelled, onError }) {
   const [enviando, setEnviando] = useState(false)

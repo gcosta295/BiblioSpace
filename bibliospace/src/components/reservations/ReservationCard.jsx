@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { agregarMiembro, quitarMiembro } from '../../api/sheets'
+import { agregarMiembro, quitarMiembro } from '../../api/library'
 import { CANCELAR_ANTES_MIN, capacidadDe, MIN_PERSONAS, puedeCancelar, validarInvitado } from '../../services/reservationRules'
 import { conocidos, miembrosDe } from '../../utils/time'
 import CancelDialog from './CancelDialog'
@@ -11,7 +11,6 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
   const titular = String(reserva.Correo_Estudiante).toLowerCase()
   const miembros = miembrosDe(reserva)
   const esTitular = titular === correo
-  const pendiente = reserva.Estado === 'Pendiente'
 
   const agregar = async (m) => {
     const err = validarInvitado({ reservas, correo: m, actuales: [titular, ...miembros], cub })
@@ -34,11 +33,6 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
 
   return (
     <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
-      {pendiente && (
-        <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
-          Pendiente de confirmación: abre el enlace del correo antes de {String(reserva.Vence).slice(11, 16)} o la reserva se cancelará.
-        </p>
-      )}
       <div>
         <h2 className="text-lg font-semibold">
           Cubículo {reserva.ID_Cubiculo} · Piso {reserva.Piso}
@@ -57,7 +51,7 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
           sugerencias={conocidos(reservas)}
           onAdd={agregar}
           onRemove={quitar}
-          readOnly={!esTitular || pendiente}
+          readOnly={!esTitular}
         />
         {!esTitular && <p className="mt-2 text-xs text-slate-500">Solo el titular puede modificar o cancelar la reserva.</p>}
       </div>

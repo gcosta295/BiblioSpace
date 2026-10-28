@@ -8,8 +8,8 @@ export const CIERRE = 17
 export const MAX_RESERVAS_DIA = 3
 export const CANCELAR_ANTES_MIN = 15
 
-// Una reserva confirmada se puede cancelar hasta 15 min antes de empezar; una pendiente, siempre.
-export const puedeCancelar = (r) => r.Estado === 'Pendiente' || inicioMs(r) - Date.now() >= CANCELAR_ANTES_MIN * 60000
+// Una reserva se puede cancelar hasta 15 min antes de empezar.
+export const puedeCancelar = (r) => inicioMs(r) - Date.now() >= CANCELAR_ANTES_MIN * 60000
 
 const reservasHoy = (reservas, correo) =>
   reservas.filter((r) => String(r.Correo_Estudiante).toLowerCase() === correo && String(r.Fecha_Creacion).slice(0, 10) === hoyISO() && r.Estado !== 'Expirada').length

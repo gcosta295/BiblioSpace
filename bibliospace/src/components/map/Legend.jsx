@@ -1,11 +1,11 @@
-import { COLORES, ETIQUETAS } from '../../utils/estados'
+import { ETIQUETAS } from '../../utils/estados'
 
 export default function Legend() {
   return (
-    <ul className="flex flex-wrap gap-3 text-sm">
+    <ul className="seat-legend">
       {Object.keys(ETIQUETAS).map((e) => (
-        <li key={e} className="flex items-center gap-1.5">
-          <span className={`h-3 w-3 rounded border ${COLORES[e].split(' hover')[0]}`} />
+        <li key={e} className={`seat-legend-item seat-legend-${e}`}>
+          <span aria-hidden="true" />
           {ETIQUETAS[e]}
         </li>
       ))}

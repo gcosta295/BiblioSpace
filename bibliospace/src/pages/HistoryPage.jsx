@@ -5,7 +5,6 @@ import { estadoVisible, miembrosDe } from '../utils/time'
 
 const ESTILO = {
   Activa: 'bg-emerald-100 text-emerald-800',
-  Pendiente: 'bg-amber-100 text-amber-800',
   Cancelada: 'bg-red-100 text-red-700',
   Expirada: 'bg-slate-200 text-slate-600',
   Finalizada: 'bg-slate-200 text-slate-600',
