@@ -1,5 +1,5 @@
-// Estados que ocupan el cubículo y a las personas (Pendiente = esperando confirmación por correo)
-export const OCUPA = ['Activa', 'Pendiente']
+// Estados que ocupan el cubículo y a las personas
+export const OCUPA = ['Activa']
 
 const pad = (n) => String(n).padStart(2, '0')
 

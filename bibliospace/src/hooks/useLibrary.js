@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { obtenerCubiculos, obtenerReservas } from '../api/sheets'
+import { obtenerCubiculos, obtenerReservas } from '../api/library'
 import { useAuth } from '../context/AuthContext'
 
 // Carga cubículos y reservas; `recargar` refresca tras cualquier cambio.
