@@ -20,14 +20,12 @@ import redBullet from '../assets/admin/activity-red.svg'
 import grayBullet from '../assets/admin/activity-gray.svg'
 import dashboardIcon from '../assets/admin/nav-dashboard.svg'
 import cubiclesIcon from '../assets/admin/nav-cubicles.svg'
-import usersIcon from '../assets/admin/nav-users.svg'
 import navActivityIcon from '../assets/admin/nav-activity.svg'
 import settingsIcon from '../assets/admin/nav-settings.svg'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: dashboardIcon, page: true },
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
-  { label: 'Usuarios', href: '/historial', icon: usersIcon, page: true },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
   { label: 'Configuración', href: '#registro', icon: settingsIcon },
 ]

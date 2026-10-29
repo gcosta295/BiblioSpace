@@ -10,7 +10,7 @@ export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, sel
     .filter((c) => Number(c.Piso) === piso)
     .sort((a, b) => Number(a.ID_Cubiculo) - Number(b.ID_Cubiculo))
 
-  const { piezas, real } = posicionesDelPiso(delPiso)
+  const { piezas } = posicionesDelPiso(delPiso)
   const referencias = REFERENCIAS[piso] ?? []
 
   const tarjetas = piezas.map(({ cub, x, y }) => {
@@ -49,13 +49,6 @@ export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, sel
         ))}
         {tarjetas}
       </div>
-
-      {!real && (
-        <figcaption className="floor-note">
-          Distribución provisional: este piso aún no tiene registrada la ubicación real de sus
-          cubículos. Añade <code>pos_x</code> y <code>pos_y</code> para ver el plano.
-        </figcaption>
-      )}
     </figure>
   )
 }

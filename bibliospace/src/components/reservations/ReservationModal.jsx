@@ -38,7 +38,7 @@ export default function ReservationModal({
 
   const enviar = async (e) => {
     e.preventDefault()
-    const err = validarReserva({ reservas, cub, correo, miembros, fecha, hora, duracion })
+    const err = validarReserva({ reservas, cub, correo, nombre, carnet, miembros, fecha, hora, duracion })
     if (err) return setError(err)
     setEnviando(true)
     const res = await crearReserva({
@@ -63,8 +63,24 @@ export default function ReservationModal({
         <p className="text-sm text-slate-500">
           {fecha} desde las {horaTexto(hora)}
         </p>
-        <input required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" className={field} />
-        <input required value={carnet} onChange={(e) => setCarnet(e.target.value)} placeholder="Número de carnet" className={field} />
+        <input
+          required
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, ''))}
+          maxLength={100}
+          autoComplete="name"
+          placeholder="Nombre completo (solo letras)"
+          className={field}
+        />
+        <input
+          required
+          value={carnet}
+          onChange={(e) => setCarnet(e.target.value.replace(/\D/g, '').slice(0, 11))}
+          inputMode="numeric"
+          maxLength={11}
+          placeholder="Carnet (11 dígitos)"
+          className={field}
+        />
         <label className="block text-sm">
           <span className="block text-slate-500">Duración</span>
           <select value={duracion} onChange={(e) => setDuracion(Number(e.target.value))} className={field}>

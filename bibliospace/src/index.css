@@ -2192,21 +2192,6 @@ select:focus-visible {
   transform: rotate(180deg);
 }
 
-.floor-note {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: rgb(244 135 4 / 12%);
-  color: #8a4e06;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.floor-note code {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-}
-
 @media (max-width: 720px) {
   .floor-plan { aspect-ratio: 3 / 4; }
   .floor-ref { font-size: 9px; }
