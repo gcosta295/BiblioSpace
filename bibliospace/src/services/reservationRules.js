@@ -1,7 +1,7 @@
 import { aHoras, ahoraTexto, horaTexto, hoyISO, inicioMs, OCUPA, reservaVigente } from '../utils/time'
 
 export const MAX_PERSONAS = 6
-export const MIN_PERSONAS = 2
+export const MIN_PERSONAS = 3 // el titular + 2 más
 export const DOMINIO = '@correo.unimet.edu.ve'
 export const APERTURA = 7
 export const CIERRE = 17
@@ -42,7 +42,7 @@ export function validarReserva({ reservas, cub, correo, miembros, fecha, hora, d
   if (cub.Estado === 'Bloqueado') return 'El cubículo está bloqueado.'
   if (hora < APERTURA || hora + duracion > CIERRE) return `La biblioteca atiende de ${APERTURA}:00 a ${CIERRE}:00.`
   if (`${fecha} ${horaTexto(hora)}` < ahoraTexto().slice(0, 13) + ':00') return 'No se puede reservar en el pasado.'
-  if (1 + miembros.length < MIN_PERSONAS) return `Se necesitan al menos ${MIN_PERSONAS} personas: agrega a quien te acompaña.`
+  if (1 + miembros.length < MIN_PERSONAS) return `Se necesitan al menos ${MIN_PERSONAS} personas: agrega al menos ${MIN_PERSONAS - 1} integrantes más.`
   if (1 + miembros.length > capacidadDe(cub)) return `Máximo ${capacidadDe(cub)} personas por cubículo.`
   if (reservaVigente(reservas, correo)) return 'Ya estás en una reserva activa. Cancélala para reservar otro cubículo.'
   if (reservasHoy(reservas, correo) >= MAX_RESERVAS_DIA) return `Alcanzaste el máximo de ${MAX_RESERVAS_DIA} reservas por día.`

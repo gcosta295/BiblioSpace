@@ -90,6 +90,9 @@ export const crearReserva = (d) =>
 
 export const cancelarReserva = (correo, id) => rpc('cancelar_reserva', { p_correo: correo, p_id: id })
 
+// Un integrante sale de la reserva (si es el titular, se cancela). -> { status: 'ok', cancelada, mensaje }
+export const abandonarReserva = (correo, id) => rpc('abandonar_reserva', { p_correo: correo, p_id: id })
+
 export const agregarMiembro = (correo, id, miembro) =>
   rpc('agregar_miembro', { p_correo: correo, p_id: id, p_miembro: miembro })
 
