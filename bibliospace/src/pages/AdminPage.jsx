@@ -20,14 +20,12 @@ import redBullet from '../assets/admin/activity-red.svg'
 import grayBullet from '../assets/admin/activity-gray.svg'
 import dashboardIcon from '../assets/admin/nav-dashboard.svg'
 import cubiclesIcon from '../assets/admin/nav-cubicles.svg'
-import usersIcon from '../assets/admin/nav-users.svg'
 import navActivityIcon from '../assets/admin/nav-activity.svg'
 import settingsIcon from '../assets/admin/nav-settings.svg'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: dashboardIcon, page: true },
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
-  { label: 'Usuarios', href: '/historial', icon: usersIcon, page: true },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
   { label: 'Configuración', href: '#registro', icon: settingsIcon },
 ]
@@ -210,41 +208,170 @@ function StatCard({ label, value, hint, accent, progress, trend }) {
   )
 }
 
+const monthLabel = (month) => {
+  if (!/^\d{4}-\d{2}$/.test(month)) return month
+  const [year, monthNumber] = month.split('-').map(Number)
+  return new Date(year, monthNumber - 1, 1).toLocaleDateString('es', { month: 'long', year: 'numeric' })
+}
+
+const aggregateUsage = (reservations) => {
+  const totals = new Map()
+  reservations.forEach((reservation) => {
+    const floor = Number(reservation.Piso)
+    const cubicle = Number(reservation.ID_Cubiculo)
+    if (!Number.isFinite(floor) || !Number.isFinite(cubicle)) return
+    const key = `${floor}-${cubicle}`
+    totals.set(key, (totals.get(key) || 0) + 1)
+  })
+
+  return [...totals.entries()].map(([key, count]) => {
+    const [floor, cubicle] = key.split('-').map(Number)
+    return { floor, cubicle, count }
+  }).sort((first, second) => first.floor - second.floor || first.cubicle - second.cubicle)
+}
+
+const csvValue = (value) => {
+  const text = String(value ?? '')
+  return `"${text.replaceAll('"', '""')}"`
+}
+
+const downloadBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+const downloadUsageCsv = (rows, month) => {
+  const header = ['Mes', 'Piso', 'Cubículo', 'Reservas']
+  const body = rows.map(({ floor, cubicle, count }) =>
+    [month, floor, cubicle, count].map(csvValue).join(','))
+  downloadBlob(
+    new Blob(['\ufeff', header.map(csvValue).join(','), '\r\n', body.join('\r\n')], { type: 'text/csv;charset=utf-8' }),
+    `uso-cubiculos-${month}.csv`,
+  )
+}
+
+const downloadUsageJpg = (rows, month) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1200
+  canvas.height = 720
+  const context = canvas.getContext('2d')
+  if (!context) return
+
+  context.fillStyle = '#ffffff'
+  context.fillRect(0, 0, canvas.width, canvas.height)
+  context.fillStyle = '#212e84'
+  context.font = '700 34px Arial'
+  context.fillText(`Uso de cubículos - ${monthLabel(month)}`, 60, 70)
+  context.fillStyle = '#6b7280'
+  context.font = '18px Arial'
+  context.fillText('Datos agregados; no contiene información personal de usuarios.', 60, 105)
+
+  const maximum = Math.max(1, ...rows.map((row) => row.count))
+  const chartLeft = 90
+  const chartTop = 150
+  const chartWidth = 1050
+  const chartHeight = 430
+  const slotWidth = rows.length ? chartWidth / rows.length : chartWidth
+  context.strokeStyle = '#d1d5db'
+  context.beginPath()
+  context.moveTo(chartLeft, chartTop + chartHeight)
+  context.lineTo(chartLeft + chartWidth, chartTop + chartHeight)
+  context.stroke()
+
+  rows.forEach((row, index) => {
+    const barWidth = Math.max(12, Math.min(72, slotWidth * 0.62))
+    const barHeight = row.count ? Math.max(10, row.count / maximum * chartHeight) : 0
+    const x = chartLeft + index * slotWidth + (slotWidth - barWidth) / 2
+    const y = chartTop + chartHeight - barHeight
+    context.fillStyle = '#e68200'
+    context.fillRect(x, y, barWidth, barHeight)
+    context.fillStyle = '#212e84'
+    context.font = '700 16px Arial'
+    context.textAlign = 'center'
+    context.fillText(String(row.count), x + barWidth / 2, Math.max(chartTop + 20, y - 8))
+    context.fillStyle = '#374151'
+    context.font = '14px Arial'
+    context.fillText(`P${row.floor} · C${row.cubicle}`, x + barWidth / 2, chartTop + chartHeight + 28)
+  })
+  context.textAlign = 'left'
+
+  canvas.toBlob((blob) => {
+    if (blob) downloadBlob(blob, `uso-cubiculos-${month}.jpg`)
+  }, 'image/jpeg', 0.92)
+}
+
 function UsageChart({ reservations, date }) {
-  const days = useMemo(() => {
-    const today = new Date(`${date}T00:00:00`)
-    return Array.from({ length: 7 }, (_, index) => {
-      const day = new Date(today)
-      day.setDate(today.getDate() - (6 - index))
-      const dayKey = formatDate(day)
-      const count = reservations.filter(
-        (reservation) => reservation.Fecha === dayKey && OCUPA.includes(reservation.Estado),
-      ).length
-      return {
-        label: day.toLocaleDateString('es', { weekday: 'short' }).replace('.', '').toUpperCase(),
-        count,
-      }
+  const [month, setMonth] = useState(date.slice(0, 7))
+  const months = useMemo(() => {
+    const values = new Set([date.slice(0, 7)])
+    reservations.forEach((reservation) => {
+      if (reservation.Fecha?.slice(0, 7).match(/^\d{4}-\d{2}$/)) values.add(reservation.Fecha.slice(0, 7))
     })
+    return [...values].sort().reverse()
   }, [date, reservations])
-  const maximum = Math.max(1, ...days.map((day) => day.count))
+  const monthlyReservations = reservations.filter(
+    (reservation) => reservation.Fecha?.startsWith(month) && OCUPA.includes(reservation.Estado),
+  )
+  const rows = aggregateUsage(monthlyReservations)
+  const maximum = Math.max(1, ...rows.map((row) => row.count))
+  const floorTotals = useMemo(() => {
+    const totals = new Map()
+    rows.forEach((row) => totals.set(row.floor, (totals.get(row.floor) || 0) + row.count))
+    return [...totals.entries()].map(([floor, count]) => ({ floor, count })).sort((a, b) => a.floor - b.floor)
+  }, [rows])
 
   return (
     <section className="admin-panel admin-usage-panel" aria-labelledby="usage-heading">
-      <h2 id="usage-heading">Estadísticas de Uso Diario</h2>
-      <div className="admin-chart" role="img" aria-label="Reservas activas y pendientes de los últimos siete días">
-        {days.map((day) => (
-          <div className="admin-chart-column" key={day.label}>
-            <div className="admin-chart-track">
-              <span
-                className={day.count === maximum && day.count > 0 ? 'is-highlighted' : ''}
-                style={{ height: `${day.count ? Math.max(18, (day.count / maximum) * 100) : 8}%` }}
-                title={`${day.count} reservas`}
-              />
-            </div>
-            <span className="admin-chart-label">{day.label}</span>
-          </div>
-        ))}
+      <div className="admin-panel-heading admin-usage-heading">
+        <div>
+          <h2 id="usage-heading">Estadísticas de Uso</h2>
+          <p>Reservas agregadas por cubículo</p>
+        </div>
+        <label className="admin-month-filter">
+          <span>Mes</span>
+          <select value={month} onChange={(event) => setMonth(event.target.value)}>
+            {months.map((value) => <option value={value} key={value}>{monthLabel(value)}</option>)}
+          </select>
+        </label>
       </div>
+
+      <div className="admin-download-actions" aria-label="Descargar estadísticas anónimas">
+        <button type="button" onClick={() => downloadUsageCsv(rows, month)} disabled={!rows.length}>Descargar CSV</button>
+        <button type="button" onClick={() => downloadUsageJpg(rows, month)} disabled={!rows.length}>Descargar JPG</button>
+      </div>
+
+      {rows.length ? (
+        <div className="admin-usage-visualizations">
+          <div className="admin-chart admin-cubicle-chart" role="img" aria-label={`Reservas por cubículo en ${monthLabel(month)}`}>
+            {rows.map((row) => (
+              <div className="admin-chart-column" key={`${row.floor}-${row.cubicle}`} title={`Piso ${row.floor}, cubículo ${row.cubicle}: ${row.count} reservas`}>
+                <div className="admin-chart-track">
+                  <span style={{ height: `${Math.max(8, row.count / maximum * 100)}%` }} />
+                </div>
+                <span className="admin-chart-label">P{row.floor}·C{row.cubicle}</span>
+              </div>
+            ))}
+          </div>
+          <div className="admin-floor-chart" aria-label="Distribución mensual por piso">
+            <h3>Distribución por piso</h3>
+            {floorTotals.map((row) => {
+              const total = floorTotals.reduce((sum, floor) => sum + floor.count, 0)
+              const percentage = total ? Math.round(row.count / total * 100) : 0
+              return (
+                <div className="admin-floor-row" key={row.floor}>
+                  <span>Piso {row.floor}</span>
+                  <div className="admin-floor-track"><span style={{ width: `${percentage}%` }} /></div>
+                  <strong>{percentage}%</strong>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : <p className="admin-usage-empty">No hay reservas registradas para este mes.</p>}
     </section>
   )
 }

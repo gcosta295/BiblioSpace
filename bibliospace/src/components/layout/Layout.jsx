@@ -102,7 +102,7 @@ export default function Layout() {
             <img src={logoFooter} alt="BiblioSpace" />
             <p>Sistema integral de gestión de espacios de estudio para la Universidad Metropolitana.</p>
           </div>
-          <p className="footer-copyright">© 2023 BiblioSpace · Universidad Metropolitana · Todos los derechos reservados.</p>
+          <p className="footer-copyright">© 2026 BiblioSpace · Universidad Metropolitana · Todos los derechos reservados.</p>
         </div>
       </footer>}
     </div>

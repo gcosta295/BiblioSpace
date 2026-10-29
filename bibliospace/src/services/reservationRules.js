@@ -1,5 +1,24 @@
 import { aHoras, ahoraTexto, horaTexto, hoyISO, inicioMs, OCUPA, reservaVigente } from '../utils/time'
 
+const SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?: [A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/
+const CARNET = /^[1-9][0-9]{10}$/
+
+// Solo letras y espacios: sin números ni caracteres especiales. -> mensaje de error o null
+export function validarNombre(nombre) {
+  const n = String(nombre ?? '').trim()
+  if (!n) return 'Escribe tu nombre completo.'
+  if (n.length > 100 || !SOLO_LETRAS.test(n)) return 'El nombre solo puede tener letras y espacios, sin números ni caracteres especiales.'
+  return null
+}
+
+// Número positivo de 11 dígitos. -> mensaje de error o null
+export function validarCarnet(carnet) {
+  const c = String(carnet ?? '').trim()
+  if (!c) return 'Escribe tu número de carnet.'
+  if (!CARNET.test(c)) return 'El carnet debe ser un número positivo de 11 dígitos.'
+  return null
+}
+
 export const MAX_PERSONAS = 6
 export const MIN_PERSONAS = 3 // el titular + 2 más
 export const DOMINIO = '@correo.unimet.edu.ve'
@@ -37,8 +56,10 @@ export function validarInvitado({ reservas, correo, actuales, cub }) {
 }
 
 // -> mensaje de error o null
-export function validarReserva({ reservas, cub, correo, miembros, fecha, hora, duracion }) {
+export function validarReserva({ reservas, cub, correo, nombre, carnet, miembros, fecha, hora, duracion }) {
   if (!correo) return 'Guarda tu correo institucional (arriba a la derecha) para reservar.'
+  const errorDatos = validarNombre(nombre) || validarCarnet(carnet)
+  if (errorDatos) return errorDatos
   if (cub.Estado === 'Bloqueado') return 'El cubículo está bloqueado.'
   if (hora < APERTURA || hora + duracion > CIERRE) return `La biblioteca atiende de ${APERTURA}:00 a ${CIERRE}:00.`
   if (`${fecha} ${horaTexto(hora)}` < ahoraTexto().slice(0, 13) + ':00') return 'No se puede reservar en el pasado.'

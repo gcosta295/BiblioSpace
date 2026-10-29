@@ -1455,14 +1455,137 @@ select:focus-visible {
 
 .admin-usage-panel {
   min-height: 256px;
-  padding: 22px 24px 18px;
+  padding: 0;
+  overflow: hidden;
 }
 
-.admin-usage-panel > h2 {
-  margin-bottom: 18px;
+.admin-usage-heading {
+  align-items: flex-start;
+  padding: 18px 24px 16px;
+}
+
+.admin-usage-heading h2 {
   font-size: 16px;
   line-height: 24px;
 }
+
+.admin-usage-heading p {
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.admin-month-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-month-filter select {
+  height: 34px;
+  border: 1px solid #d9deea;
+  border-radius: 7px;
+  background: #fff;
+  color: #252d5f;
+  padding: 0 28px 0 10px;
+}
+
+.admin-download-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 16px 24px 12px;
+}
+
+.admin-download-actions button {
+  border: 1px solid #212e84;
+  border-radius: 6px;
+  background: #fff;
+  color: #212e84;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+}
+
+.admin-download-actions button:hover {
+  background: #f3f4ff;
+}
+
+.admin-download-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.admin-usage-visualizations {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 0 24px 18px;
+}
+
+.admin-usage-empty {
+  margin: 0 24px 18px;
+}
+
+.admin-cubicle-chart {
+  height: 150px;
+  overflow-x: auto;
+}
+
+.admin-cubicle-chart .admin-chart-column {
+  min-width: 42px;
+}
+
+.admin-cubicle-chart .admin-chart-track {
+  height: 118px;
+}
+
+.admin-floor-chart h3 {
+  margin-bottom: 12px;
+  color: #252d5f;
+  font-size: 13px;
+}
+
+.admin-floor-row {
+  display: grid;
+  grid-template-columns: 52px minmax(45px, 1fr) 36px;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.admin-floor-row strong {
+  color: #252d5f;
+  text-align: right;
+}
+
+.admin-floor-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf0f6;
+}
+
+.admin-floor-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e68200;
+}
+
+.admin-usage-empty {
+  color: #9ca3af;
+  padding: 55px 0;
+  text-align: center;
+}
+
 
 .admin-chart {
   display: flex;
@@ -2122,7 +2245,17 @@ select:focus-visible {
     min-width: 600px;
   }
 
-  .admin-usage-panel {
+  .admin-usage-heading {
+    gap: 12px;
+  }
+
+  .admin-download-actions {
+    margin-right: 16px;
+    margin-left: 16px;
+  }
+
+  .admin-usage-visualizations {
+    grid-template-columns: 1fr;
     padding-right: 16px;
     padding-left: 16px;
   }
@@ -2190,21 +2323,6 @@ select:focus-visible {
 .floor-ref-escalera span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-}
-
-.floor-note {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: rgb(244 135 4 / 12%);
-  color: #8a4e06;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.floor-note code {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
 }
 
 @media (max-width: 720px) {
