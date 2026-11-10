@@ -14,7 +14,7 @@ export default function HistoryPage() {
   const { correo } = useAuth()
   const { reservas, cargando, error } = useLibrary()
 
-  if (!correo) return <p className="text-slate-600">Guarda tu correo institucional (arriba a la derecha) para ver tu historial.</p>
+  if (!correo) return <p className="text-slate-600">Inicia sesión para ver tu historial.</p>
   if (cargando && !reservas.length) return <p className="text-slate-500">Cargando…</p>
   if (error) return <p className="text-red-600">No se pudo cargar la información.</p>
 

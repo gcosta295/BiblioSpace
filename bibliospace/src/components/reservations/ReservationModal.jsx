@@ -17,9 +17,9 @@ export default function ReservationModal({
   onClose,
   onCreated,
 }) {
-  const { correo } = useAuth()
-  const [nombre, setNombre] = useState('')
-  const [carnet, setCarnet] = useState('')
+  const { correo, nombre: nombrePerfil, carnet: carnetPerfil } = useAuth()
+  const [nombre, setNombre] = useState(nombrePerfil)
+  const [carnet, setCarnet] = useState(carnetPerfil)
   const [duracion, setDuracion] = useState(duracionInicial)
   const [miembros, setMiembros] = useState(integrantesIniciales)
   const [error, setError] = useState('')
@@ -93,7 +93,7 @@ export default function ReservationModal({
             Integrantes ({1 + miembros.length}/{capacidadDe(cub)}) · mínimo {MIN_PERSONAS}
           </p>
           <MemberPicker
-            titular={correo || 'Guarda tu correo arriba a la derecha'}
+            titular={correo}
             miembros={miembros}
             sugerencias={conocidos(reservas)}
             onAdd={agregar}

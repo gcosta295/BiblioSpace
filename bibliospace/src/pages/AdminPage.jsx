@@ -377,7 +377,7 @@ function UsageChart({ reservations, date }) {
 }
 
 export default function AdminPage() {
-  const { correo, rol } = useAuth()
+  const { correo, rol, cerrarSesion } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -517,6 +517,7 @@ export default function AdminPage() {
             <strong>{adminName}</strong>
             <span>Administrador</span>
           </span>
+          <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
         </div>
       </aside>
 

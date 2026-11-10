@@ -10,7 +10,7 @@ export default function MyReservationPage() {
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null) // { tipo: 'ok' | 'error', texto }
 
-  if (!correo) return <p className="text-slate-600">Guarda tu correo institucional (arriba a la derecha) para ver tu reserva.</p>
+  if (!correo) return <p className="text-slate-600">Inicia sesión para ver tu reserva.</p>
   if (cargando && !reservas.length) return <p className="text-slate-500">Cargando…</p>
   if (error) return <p className="text-red-600">No se pudo cargar la información.</p>
 

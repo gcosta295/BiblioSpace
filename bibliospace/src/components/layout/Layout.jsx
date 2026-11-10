@@ -1,70 +1,51 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
+import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
 import notificationsIcon from '../../assets/notifications.png'
 
-function CorreoInput() {
-  const { correo, setCorreo } = useAuth()
-  const [valor, setValor] = useState(correo)
-  const [error, setError] = useState('')
+function PerfilMenu() {
+  const { correo, nombre, rol, cerrarSesion } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
-  const guardar = (e) => {
-    e.preventDefault()
-    const mensaje = setCorreo(valor)
-    setError(mensaje || '')
-    if (!mensaje) setAbierto(false)
+  if (!correo) {
+    return (
+      <div className="profile" id="profile">
+        <Link to="/login" className="profile-login">
+          <UserIcon width={16} height={16} />
+          Iniciar sesión
+        </Link>
+      </div>
+    )
   }
 
-  const nombre = correo
-    ? correo
-        .split('@')[0]
-        .split(/[._-]/)
-        .filter(Boolean)
-        .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
-        .join(' ')
-    : 'Invitado'
+  const visible = nombre || correo.split('@')[0]
+  const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
+
+  const salir = async () => {
+    setAbierto(false)
+    await cerrarSesion()
+  }
 
   return (
     <div className="profile" id="profile">
       <img className="notification-icon" src={notificationsIcon} alt="" aria-hidden="true" />
       <div className="profile-divider" />
-      <button
-        type="button"
-        className="profile-button"
-        aria-expanded={abierto}
-        onClick={() => {
-          setValor(correo)
-          setError('')
-          setAbierto((actual) => !actual)
-        }}
-      >
+      <button type="button" className="profile-button" aria-expanded={abierto} onClick={() => setAbierto((actual) => !actual)}>
         <span className="profile-copy">
-          <strong>{nombre}</strong>
-          <span>{correo ? 'Estudiante' : 'Guarda tu correo'}</span>
+          <strong>{visible}</strong>
+          <span>{rol === 'admin' ? 'Administrador' : 'Estudiante'}</span>
         </span>
-        <span className="profile-avatar" aria-hidden="true">
-          {nombre === 'Invitado' ? '?' : nombre.split(' ').map((parte) => parte[0]).slice(0, 2).join('')}
-        </span>
+        <span className="profile-avatar" aria-hidden="true">{iniciales}</span>
       </button>
       {abierto && (
-        <form onSubmit={guardar} className="profile-form">
-          <label htmlFor="institutional-email">Correo institucional</label>
-          <div className="profile-form-row">
-            <input
-              id="institutional-email"
-              type="email"
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              placeholder="tu@correo.unimet.edu.ve"
-            />
-            <button type="submit">Guardar</button>
-          </div>
-          {error && <span className="profile-error">{error}</span>}
-        </form>
+        <div className="profile-form profile-menu">
+          <span className="profile-menu-correo">{correo}</span>
+          <button type="button" onClick={salir}>Cerrar sesión</button>
+        </div>
       )}
     </div>
   )
@@ -73,7 +54,7 @@ function CorreoInput() {
 const link = ({ isActive }) => `site-nav-link${isActive ? ' is-active' : ''}`
 
 export default function Layout() {
-  const { rol } = useAuth()
+  const { correo, rol } = useAuth()
   const { pathname } = useLocation()
   const adminDashboard = rol === 'admin' && pathname === '/admin'
 
@@ -84,13 +65,13 @@ export default function Layout() {
           <NavLink to="/" end className="brand-link" aria-label="BiblioSpace, inicio">
             <img src={logoHeader} alt="BiblioSpace — Biblioteca Universidad Metropolitana" />
           </NavLink>
-          <nav className="site-nav" aria-label="Navegación principal">
+          <nav className={`site-nav${correo ? '' : ' site-nav-guest'}`} aria-label="Navegación principal">
             <NavLink to="/" end className={link}>Inicio</NavLink>
-            <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>
-            <NavLink to="/historial" className={link}>Historial</NavLink>
+            {correo && <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>}
+            {correo && <NavLink to="/historial" className={link}>Historial</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
-          <CorreoInput />
+          <PerfilMenu />
         </div>
       </header>}
       <main className="site-main">

@@ -67,18 +67,32 @@ export function hayConflicto(reservas, cub, fecha, hora, duracion) {
   });
 }
 
+// Correo institucional (dos dominios) con un usuario que empieza y termina en letra. -> mensaje o null
+export function validarCorreoInstitucional(correo) {
+  const c = String(correo ?? "").trim().toLowerCase();
+  if (!c) return "Escribe tu correo institucional.";
+  const esDominioValido = c.endsWith(DOMINIO1) || c.endsWith(DOMINIO2);
+  if (!esDominioValido || c.split("@").length !== 2)
+    return `Usa un correo institucional (${DOMINIO1} o ${DOMINIO2}).`;
+  if (!/^[a-zA-Z](.*[a-zA-Z])?$/.test(c.split("@")[0]))
+    return "El usuario del correo debe ser valido.";
+  return null;
+}
+
+// Contraseña de la cuenta: de 8 a 72 caracteres. -> mensaje o null
+export function validarClave(clave) {
+  const c = String(clave ?? "");
+  if (!c) return "Escribe tu contraseña.";
+  if (c.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
+  if (c.length > 72) return "La contraseña no puede pasar de 72 caracteres.";
+  return null;
+}
+
 // Un invitado es válido si es institucional, no está repetido y no está en otro cubículo.
 // `actuales` = correos ya en esta reserva (titular incluido). -> mensaje de error o null
 export function validarInvitado({ reservas, correo, actuales, cub }) {
-  const esDominioValido =
-    correo.endsWith(DOMINIO1) || correo.endsWith(DOMINIO2);
-  if (!esDominioValido)
-    return `Usa un correo institucional (${DOMINIO1} o ${DOMINIO2}).`;
-  const usuario = correo.split("@")[0];
-  const formatoValido = /^[a-zA-Z](.*[a-zA-Z])?$/.test(usuario);
-  if (!formatoValido) {
-    return "El usuario del correo debe ser valido.";
-  }
+  const errorCorreo = validarCorreoInstitucional(correo);
+  if (errorCorreo) return errorCorreo;
   if (actuales.includes(correo)) return "Ya forma parte de esta reserva.";
   if (reservaVigente(reservas, correo))
     return `${correo} ya está en otro cubículo.`;
@@ -100,7 +114,7 @@ export function validarReserva({
   duracion,
 }) {
   if (!correo)
-    return "Guarda tu correo institucional (arriba a la derecha) para reservar.";
+    return "Inicia sesión para reservar.";
   const errorDatos = validarNombre(nombre) || validarCarnet(carnet);
   if (errorDatos) return errorDatos;
   if (cub.Estado === "Bloqueado") return "El cubículo está bloqueado.";

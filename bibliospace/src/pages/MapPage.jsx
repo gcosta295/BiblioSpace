@@ -6,6 +6,7 @@ import { APERTURA, CIERRE, MAX_RESERVAS_DIA, MIN_PERSONAS, validarInvitado } fro
 import { aHoras, conocidos, estadoVisible, horaActual, horaTexto, hoyISO, miembrosDe, reservaVigente } from '../utils/time'
 import CubicleMap from '../components/map/CubicleMap'
 import Legend from '../components/map/Legend'
+import { LockIcon } from '../components/auth/AuthIcons'
 import MemberPicker from '../components/reservations/MemberPicker'
 import ReservationModal from '../components/reservations/ReservationModal'
 import completedIcon from '../assets/stats-completed.png'
@@ -114,7 +115,7 @@ export default function MapPage() {
         .filter(Boolean)
         .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
         .join(' ') + ' (tú)'
-    : 'Guarda tu correo institucional'
+    : 'Inicia sesión para reservar'
 
   const cambiarHora = (nuevaHora) => {
     setHora(nuevaHora)
@@ -225,9 +226,13 @@ export default function MapPage() {
                     className="member-picker-compact"
                   />
                 ) : (
-                  <div className="selected-cubicle">
-                    <span className="selection-indicator" aria-hidden="true" />
-                    <strong>Guarda tu correo institucional en tu perfil</strong>
+                  <div className="guest-prompt">
+                    <span className="guest-prompt-icon"><LockIcon /></span>
+                    <p>
+                      <strong>Inicia sesión para reservar</strong>
+                      <span>Necesitas una cuenta para crear una reserva.</span>
+                    </p>
+                    <Link to="/login" className="btn-login">Iniciar sesión</Link>
                   </div>
                 )}
               </div>
@@ -262,8 +267,8 @@ export default function MapPage() {
               </div>
             ) : (
               <div className="active-reservation-card">
-                <span>{correo ? 'No tienes una reserva activa.' : 'Guarda tu correo para consultar tus reservas.'}</span>
-                {correo && <Link to="/historial">Ver mis reservas</Link>}
+                <span>{correo ? 'No tienes una reserva activa.' : 'Inicia sesión para consultar tus reservas.'}</span>
+                {correo ? <Link to="/historial">Ver mis reservas</Link> : <Link to="/login" className="btn-login btn-login-sm">Iniciar sesión</Link>}
               </div>
             )}
           </section>
