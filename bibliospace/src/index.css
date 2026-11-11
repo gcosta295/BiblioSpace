@@ -51,14 +51,14 @@ select:focus-visible {
 .site-header {
   position: relative;
   z-index: 2;
-  background: #f48704;
+  background: #e67e00;
   color: #fff;
 }
 
 .site-header-inner {
   display: flex;
-  width: min(100% - 48px, 1280px);
-  min-height: 73px;
+  width: min(100% - 64px, 1280px);
+  min-height: 80px;
   margin: 0 auto;
   align-items: center;
   justify-content: space-between;
@@ -100,6 +100,17 @@ select:focus-visible {
   text-underline-offset: 5px;
 }
 
+.site-nav-link[href="/recompensas"].is-active::after {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 9999px;
+  background: #fff;
+  content: "";
+  vertical-align: middle;
+}
+
 .profile {
   position: relative;
   display: flex;
@@ -109,15 +120,15 @@ select:focus-visible {
 }
 
 .notification-icon {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
 .profile-divider {
   width: 1px;
-  height: 50px;
-  background: rgb(40 31 24 / 75%);
+  height: 40px;
+  background: rgb(252 211 77 / 40%);
 }
 
 .profile-button {
@@ -136,6 +147,7 @@ select:focus-visible {
   display: grid;
   max-width: 140px;
   gap: 3px;
+  text-align: right;
 }
 
 .profile-copy strong,
@@ -155,6 +167,7 @@ select:focus-visible {
 }
 
 .profile-avatar {
+  position: relative;
   display: grid;
   width: 41px;
   height: 41px;
@@ -165,6 +178,39 @@ select:focus-visible {
   color: #6d6d6d;
   font-family: Arial, sans-serif;
   font-size: 12px;
+}
+
+.profile-avatar.has-reward-level {
+  border: 2px solid #f472b6;
+  background: #fef3c7;
+  color: #475569;
+  font-weight: 700;
+}
+
+.profile-avatar-level {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #e67e00;
+  color: #fff;
+  font-size: 8px;
+  line-height: 1;
+}
+
+.profile-copy .profile-level-badge {
+  max-width: 100px;
+  padding: 1px 5px;
+  border-radius: 9999px;
+  background: #fce7f3;
+  color: #be185d;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .profile-form {
@@ -1024,6 +1070,11 @@ select:focus-visible {
   font-size: 10px;
 }
 
+.admin-profile-copy .admin-profile-level {
+  color: #fff1dc;
+  font-size: 10px;
+}
+
 .admin-main {
   min-width: 0;
   min-height: 100vh;
@@ -1060,6 +1111,24 @@ select:focus-visible {
   display: flex;
   flex: 0 1 auto;
   align-items: center;
+}
+
+.admin-rewards-link {
+  margin-right: 12px;
+  padding: 9px 12px;
+  border: 1px solid #f4c18a;
+  border-radius: 8px;
+  background: #fff;
+  color: #a64b00;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-rewards-link:hover,
+.admin-rewards-link.is-active {
+  background: #fff7ed;
 }
 
 .admin-search {

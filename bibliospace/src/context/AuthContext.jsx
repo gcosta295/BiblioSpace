@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import * as authApi from '../api/auth'
+import { obtenerReservas } from '../api/library'
 import { supabase } from '../lib/supabase'
+import { calcularHorasRecompensas } from '../utils/rewards'
 
 const AuthContext = createContext(null)
 
@@ -12,6 +14,9 @@ export function AuthProvider({ children }) {
   const [sesion, setSesion] = useState(undefined) // undefined = todavía comprobando
   const [perfil, setPerfil] = useState(PERFIL_VACIO)
   const [perfilCorreo, setPerfilCorreo] = useState('')
+  const [horasRecompensas, setHorasRecompensas] = useState({ acumuladas: 0, estaSemana: 0 })
+  const [correoRecompensas, setCorreoRecompensas] = useState('')
+  const [recompensasErrorCorreo, setRecompensasErrorCorreo] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSesion(data.session ?? null))
@@ -35,8 +40,37 @@ export function AuthProvider({ children }) {
     }
   }, [correo])
 
+  useEffect(() => {
+    if (!correo) return
+    let activo = true
+    obtenerReservas(correo)
+      .then((reservas) => {
+        if (!activo) return
+        if (!Array.isArray(reservas)) {
+          setRecompensasErrorCorreo(correo)
+          setCorreoRecompensas(correo)
+          return
+        }
+        setHorasRecompensas(calcularHorasRecompensas(reservas, correo))
+        setRecompensasErrorCorreo('')
+        setCorreoRecompensas(correo)
+      })
+      .catch((error) => {
+        console.error('Error al calcular las horas de recompensas:', error)
+        if (activo) {
+          setRecompensasErrorCorreo(correo)
+          setCorreoRecompensas(correo)
+        }
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [correo])
+
   const perfilListo = Boolean(correo) && perfilCorreo === correo
   const datos = perfilListo ? perfil : PERFIL_VACIO
+  const recompensasListas = Boolean(correo) && correoRecompensas === correo
 
   // Entra y devuelve { status, mensaje?, rol? }. Con comoAdmin solo deja pasar a administradores.
   const iniciarSesion = async ({ correo: c, clave, recordar, comoAdmin = false }) => {
@@ -64,6 +98,9 @@ export function AuthProvider({ children }) {
     rol: datos.rol,
     sesionLista: sesion !== undefined,
     perfilCargando: sesion === undefined || (Boolean(correo) && !perfilListo),
+    horasRecompensas: recompensasListas ? horasRecompensas : { acumuladas: 0, estaSemana: 0 },
+    recompensasCargando: Boolean(correo) && !recompensasListas,
+    recompensasError: recompensasListas && recompensasErrorCorreo === correo,
     iniciarSesion,
     registrar,
     cerrarSesion: authApi.cerrarSesion,

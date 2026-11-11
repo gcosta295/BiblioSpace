@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { rangoPorHoras } from '../../utils/rewards'
 
 import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
-import notificationsIcon from '../../assets/notifications.png'
+import notificationsIcon from '../../assets/rewards/notifications.svg'
 
 function PerfilMenu() {
-  const { correo, nombre, rol, cerrarSesion } = useAuth()
+  const { correo, nombre, rol, cerrarSesion, horasRecompensas, recompensasCargando, recompensasError } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   if (!correo) {
@@ -24,6 +25,7 @@ function PerfilMenu() {
 
   const visible = nombre || correo.split('@')[0]
   const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
+  const rango = rangoPorHoras(horasRecompensas.acumuladas)
 
   const salir = async () => {
     setAbierto(false)
@@ -38,8 +40,14 @@ function PerfilMenu() {
         <span className="profile-copy">
           <strong>{visible}</strong>
           <span>{rol === 'admin' ? 'Administrador' : 'Estudiante'}</span>
+          <span className="profile-level-badge" title={recompensasError ? 'No se pudo consultar tu nivel' : rango.nombre}>
+            {recompensasError ? 'Nivel no disponible' : recompensasCargando ? 'Calculando nivel…' : `${rango.icono} Nivel ${rango.nivel}`}
+          </span>
         </span>
-        <span className="profile-avatar" aria-hidden="true">{iniciales}</span>
+        <span className="profile-avatar has-reward-level" aria-hidden="true">
+          {iniciales}
+          <span className="profile-avatar-level">{rango.icono}</span>
+        </span>
       </button>
       {abierto && (
         <div className="profile-form profile-menu">
@@ -69,12 +77,13 @@ export default function Layout() {
             <NavLink to="/" end className={link}>Inicio</NavLink>
             {correo && <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>}
             {correo && <NavLink to="/historial" className={link}>Historial</NavLink>}
+            <NavLink to="/recompensas" className={link}>Recompensas</NavLink>
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
           <PerfilMenu />
         </div>
       </header>}
-      <main className="site-main">
+      <main className={`site-main${pathname === '/recompensas' ? ' rewards-main' : ''}`}>
         <Outlet />
       </main>
       {!adminDashboard && <footer className="site-footer">

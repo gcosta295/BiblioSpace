@@ -5,6 +5,7 @@ import BlockToggle from '../components/admin/BlockToggle'
 import ReleaseDialog from '../components/admin/ReleaseDialog'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
+import { rangoPorHoras } from '../utils/rewards'
 import { aHoras, estadoCubiculo, hoyISO, horaActual, OCUPA } from '../utils/time'
 
 import logo from '../assets/admin/admin-bibliospace-logo.png'
@@ -377,7 +378,7 @@ function UsageChart({ reservations, date }) {
 }
 
 export default function AdminPage() {
-  const { correo, rol, cerrarSesion } = useAuth()
+  const { correo, nombre, rol, cerrarSesion, horasRecompensas, recompensasCargando, recompensasError } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -459,9 +460,10 @@ export default function AdminPage() {
     .sort((first, second) => (second.timestamp || 0) - (first.timestamp || 0))
     .slice(0, 4)
 
-  const adminName = correo
+  const adminName = nombre || (correo
     ? correo.split('@')[0].split(/[._-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join(' ')
-    : 'Administrador'
+    : 'Administrador')
+  const rango = rangoPorHoras(horasRecompensas.acumuladas)
   const informarCambio = (mensaje) => {
     setAviso({ tipo: 'ok', texto: mensaje })
     recargar()
@@ -516,6 +518,9 @@ export default function AdminPage() {
           <span className="admin-profile-copy">
             <strong>{adminName}</strong>
             <span>Administrador</span>
+            <span className="admin-profile-level">
+              {recompensasError ? 'Nivel no disponible' : recompensasCargando ? 'Calculando nivel…' : `${rango.icono} Nivel ${rango.nivel} · ${rango.nombre}`}
+            </span>
           </span>
           <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
         </div>
@@ -528,6 +533,7 @@ export default function AdminPage() {
             <p>Panel de control en tiempo real.</p>
           </div>
           <div className="admin-header-actions">
+            <NavLink to="/recompensas" className="admin-rewards-link">Recompensas</NavLink>
             <label className="admin-search">
               <span className="admin-icon-box"><img src={searchIcon} alt="" /></span>
               <input
