@@ -12,6 +12,7 @@ export default function ReservationModal({
   reservas,
   fecha,
   hora,
+  ventana48Restantes = 0,
   duracionInicial = 1,
   integrantesIniciales = [],
   onClose,
@@ -38,7 +39,9 @@ export default function ReservationModal({
 
   const enviar = async (e) => {
     e.preventDefault()
-    const err = validarReserva({ reservas, cub, correo, nombre, carnet, miembros, fecha, hora, duracion })
+    const err = validarReserva({
+      reservas, cub, correo, nombre, carnet, miembros, fecha, hora, duracion, ventana48Restantes,
+    })
     if (err) return setError(err)
     setEnviando(true)
     const res = await crearReserva({

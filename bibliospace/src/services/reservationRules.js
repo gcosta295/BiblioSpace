@@ -1,7 +1,5 @@
 import {
   aHoras,
-  ahoraTexto,
-  horaTexto,
   hoyISO,
   inicioMs,
   OCUPA,
@@ -112,6 +110,7 @@ export function validarReserva({
   fecha,
   hora,
   duracion,
+  ventana48Restantes = 0,
 }) {
   if (!correo)
     return "Inicia sesión para reservar.";
@@ -120,8 +119,14 @@ export function validarReserva({
   if (cub.Estado === "Bloqueado") return "El cubículo está bloqueado.";
   if (hora < APERTURA || hora + duracion > CIERRE)
     return `La biblioteca atiende de ${APERTURA}:00 a ${CIERRE}:00.`;
-  if (`${fecha} ${horaTexto(hora)}` < ahoraTexto().slice(0, 13) + ":00")
+  const inicioReserva = new Date(`${fecha}T${String(hora).padStart(2, "0")}:00:00-04:00`).getTime();
+  if (inicioReserva < Date.now())
     return "No se puede reservar en el pasado.";
+  const antelacionHoras = (inicioReserva - Date.now()) / 3600000;
+  if (antelacionHoras > 48)
+    return "Solo puedes reservar con un máximo de 48 horas de antelación.";
+  if (antelacionHoras > 24 && ventana48Restantes <= 0)
+    return "Solo puedes reservar con 24 horas de antelación. Canjea la ventana extendida para reservar hasta con 48 horas.";
   if (1 + miembros.length < MIN_PERSONAS)
     return `Se necesitan al menos ${MIN_PERSONAS} personas: agrega al menos ${MIN_PERSONAS - 1} integrantes más.`;
   if (1 + miembros.length > capacidadDe(cub))

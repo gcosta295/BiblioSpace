@@ -45,9 +45,17 @@ const idCubiculo = (piso, numero) => `${piso}-${numero}`
 
 // -> { status: 'ok', ...datos } o { status: 'error', mensaje }
 const rpc = async (nombre, args) => {
-  const { data, error } = await supabase.rpc(nombre, args)
-  if (error) return { status: 'error', mensaje: error.message }
-  return { status: 'ok', ...(data !== null && typeof data === 'object' && !Array.isArray(data) ? data : { valor: data }) }
+  try {
+    const { data, error } = await supabase.rpc(nombre, args)
+    if (error) return { status: 'error', mensaje: error.message }
+    return { status: 'ok', ...(data !== null && typeof data === 'object' && !Array.isArray(data) ? data : { valor: data }) }
+  } catch (error) {
+    console.error(`Error al llamar la función ${nombre}:`, error)
+    return {
+      status: 'error',
+      mensaje: error instanceof Error ? error.message : 'No se pudo conectar con el servidor.',
+    }
+  }
 }
 
 export const obtenerCubiculos = async () => {
@@ -74,6 +82,53 @@ export const obtenerPerfil = async (correo) => {
   const res = await rpc('perfil', { p_correo: correo })
   return res.status === 'ok' ? { status: 'ok', rol: res.valor } : res
 }
+
+export const obtenerRecompensas = (correo) =>
+  rpc('recompensas_usuario', { p_correo: correo })
+
+export const registrarCheckIn = (correo, id) =>
+  rpc('registrar_check_in', { p_correo: correo, p_id: id })
+
+export const registrarCheckOut = (correo, id) =>
+  rpc('registrar_check_out', { p_correo: correo, p_id: id })
+
+export const obtenerAsistenciaReserva = (correo, id) =>
+  rpc('estado_asistencia_reserva', { p_correo: correo, p_id: id })
+
+export const canjearRecompensa = (correo, id) =>
+  rpc('canjear_recompensa', { p_correo: correo, p_id: id })
+
+export const canjearCubiculoFavorito = (correo, idRecompensa, piso, cubiculoId) =>
+  rpc('canjear_favorito', {
+    p_correo: correo,
+    p_id: idRecompensa,
+    p_cubiculo: idCubiculo(piso, cubiculoId),
+  })
+
+export const quitarCubiculoFavorito = (correo) =>
+  rpc('quitar_cubiculo_favorito', { p_correo: correo })
+
+export const obtenerCatalogoAdmin = async (correo) => {
+  const res = await rpc('listar_recompensas_admin', { p_correo: correo })
+  return res.status === 'ok' ? { status: 'ok', recompensas: res.valor } : res
+}
+
+export const obtenerReporteRecompensas = async (correo) => {
+  const res = await rpc('reporte_recompensas_admin', { p_correo: correo })
+  return res.status === 'ok' ? { status: 'ok', ...res } : res
+}
+
+export const guardarRecompensa = (correo, recompensa) =>
+  rpc('guardar_recompensa', {
+    p_correo: correo,
+    p_id: recompensa.id || null,
+    p_tipo: recompensa.tipo,
+    p_nombre: recompensa.nombre,
+    p_descripcion: recompensa.descripcion,
+    p_costo: recompensa.costo_horas,
+    p_stock: recompensa.stock === '' ? null : recompensa.stock,
+    p_activo: recompensa.activo,
+  })
 
 // { correo, nombre, carnet, piso, cubiculoId, fecha: 'YYYY-MM-DD', horaInicio: 'HH:00', duracion: 1|2, miembros: [correos] }
 export const crearReserva = (d) =>

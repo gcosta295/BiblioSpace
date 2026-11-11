@@ -36,6 +36,16 @@
   font: 13px/1.5 Arial, sans-serif;
 }
 
+.rewards-catalog-note {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #854d0e;
+  font: 12px/1.5 Arial, sans-serif;
+}
+
 .rewards-summary-card {
   display: grid;
   grid-template-columns: minmax(280px, 0.48fr) minmax(0, 1fr);
@@ -98,10 +108,20 @@
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 5%));
 }
 
+.rewards-tree-seed {
+  position: absolute;
+  inset: 45% 0 auto;
+  font-size: 30px;
+}
+
 .rewards-tree-part,
 .rewards-tree-part-art {
   position: absolute;
   display: block;
+}
+
+.rewards-tree-part[hidden] {
+  display: none;
 }
 
 .rewards-tree-part-art {
@@ -170,8 +190,8 @@
 }
 
 .metric-rank {
-  border-color: #fbcfe8;
-  background: rgb(253 242 248 / 60%);
+  border-color: var(--rank-color);
+  background: var(--rank-color);
 }
 
 .rewards-metric-label {
@@ -188,7 +208,7 @@
 }
 
 .metric-rank .rewards-metric-label {
-  color: #be185d;
+  color: #1e293b;
 }
 
 .rewards-metric strong {
@@ -224,7 +244,7 @@
 }
 
 .metric-rank .rewards-metric-note {
-  color: #9d174d;
+  color: #1e293b;
 }
 
 .rewards-level-progress {
@@ -264,8 +284,8 @@
   flex: 0 0 auto;
   padding: 2px 8px;
   border-radius: 9999px;
-  background: #ffedd5;
-  color: #c2410c;
+  background: var(--rank-color);
+  color: #1e293b;
   font-size: 10px;
   font-weight: 700;
 }
@@ -283,7 +303,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #f59e0b, #ec4899);
+  background: var(--rank-color, #9ec33e);
   transition: width 180ms ease;
 }
 
@@ -354,49 +374,59 @@
   margin-top: auto;
   padding: 1px 5px;
   border-radius: 4px;
-  color: #94a3b8;
+  background: var(--rank-color);
+  color: #1e293b;
   font-size: 8px;
   line-height: 13px;
 }
 
 .reward-tier-semilla {
-  border-color: #10b981;
+  --rank-color: #9ec33e;
+  --rank-soft: #f5f9e8;
+  border-color: var(--rank-color);
 }
 
 .reward-tier-flor {
-  border-color: #f9a8d4;
+  --rank-color: #e09ec1;
+  --rank-soft: #fbf1f6;
+  border-color: var(--rank-color);
 }
 
 .reward-tier-tuqueque {
-  border-color: #99f6e4;
+  --rank-color: #61a779;
+  --rank-soft: #eef6f0;
+  border-color: var(--rank-color);
 }
 
 .reward-tier-aguila {
-  border-color: #c7d2fe;
+  --rank-color: #c08d78;
+  --rank-soft: #f8f2ef;
+  border-color: var(--rank-color);
 }
 
 .reward-tier-oro {
-  border-color: #fcd34d;
+  --rank-color: #ffd007;
+  --rank-soft: #fffbea;
+  border-color: var(--rank-color);
 }
 
 .reward-tier.is-current {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f472b6;
-  background: #fdf2f8;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--rank-color);
+  background: var(--rank-soft);
 }
 
 .reward-tier.is-current .reward-tier-hours,
 .reward-tier.is-current .reward-tier-status {
-  color: #be185d;
+  color: #334155;
 }
 
 .reward-tier.is-current .reward-tier-status {
-  background: #fbcfe8;
   font-weight: 700;
 }
 
 .reward-tier.is-passed .reward-tier-status {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--rank-color);
+  color: #1e293b;
 }
 
 .reward-tier-marker {
@@ -405,8 +435,8 @@
   right: -4px;
   padding: 1px 4px;
   border-radius: 4px;
-  background: #e67e00;
-  color: #fff;
+  background: var(--rank-color);
+  color: #1e293b;
   font-size: 8px;
   font-weight: 700;
 }
@@ -569,6 +599,13 @@
   line-height: 17px;
 }
 
+.reward-stock {
+  display: inline-block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 10px;
+}
+
 .reward-benefit-actions {
   display: flex;
   align-items: center;
@@ -674,6 +711,28 @@
   text-transform: uppercase;
 }
 
+.rewards-active-pass {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d5d9e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.rewards-active-pass button {
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  font: 700 10px/16px Arial, sans-serif;
+}
+
 .rewards-active-benefits > button:disabled,
 .rewards-history-heading > button:disabled {
   cursor: not-allowed;
@@ -716,6 +775,42 @@
   line-height: 16px;
 }
 
+.rewards-history-list {
+  display: grid;
+  gap: 0;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rewards-history-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 10px;
+}
+
+.rewards-history-list li time {
+  grid-column: 1;
+  color: #64748b;
+  font-size: 9px;
+}
+
+.rewards-history-list li strong {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: #047857;
+  white-space: nowrap;
+}
+
+.rewards-history-list li strong.is-spent {
+  color: #b42318;
+}
+
 .rewards-history-footnote {
   margin: 12px 0 0;
   padding-top: 12px;
@@ -743,6 +838,78 @@
 .rewards-feedback:not(:empty) {
   padding: 12px 16px;
   box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+}
+
+.favorite-map-overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(15 23 42 / 55%);
+}
+
+.favorite-map-dialog {
+  width: min(760px, 100%);
+  max-height: min(90vh, 760px);
+  overflow: auto;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8fafc;
+  box-shadow: 0 20px 60px rgb(15 23 42 / 30%);
+}
+
+.favorite-map-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.favorite-map-heading h2 {
+  margin: 0;
+  color: #202868;
+  font: 700 20px/28px Georgia, "Times New Roman", serif;
+}
+
+.favorite-map-heading p {
+  margin: 4px 0 12px;
+  color: #64748b;
+  font: 12px/18px Arial, sans-serif;
+}
+
+.favorite-map-heading > button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #334155;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.favorite-floor-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.favorite-floor-tabs button {
+  padding: 7px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.favorite-floor-tabs button[aria-pressed="true"] {
+  border-color: #202868;
+  background: #202868;
+  color: #fff;
 }
 
 @media (max-width: 1020px) {
@@ -870,4 +1037,3 @@
     width: 100%;
   }
 }
-

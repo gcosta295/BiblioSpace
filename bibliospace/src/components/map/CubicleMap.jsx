@@ -5,7 +5,7 @@ import { posicionesDelPiso, REFERENCIAS } from '../../utils/plano'
 // El plano conserva las tarjetas de cubículo tal cual (clases seat-card): lo
 // único que cambia frente a la cuadrícula es DÓNDE se coloca cada una, usando
 // la posición física que viene en los datos.
-export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, seleccionado, esAdmin, onSelect }) {
+export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, seleccionado, favorito, esAdmin, onSelect }) {
   const delPiso = cubiculos
     .filter((c) => Number(c.Piso) === piso)
     .sort((a, b) => Number(a.ID_Cubiculo) - Number(b.ID_Cubiculo))
@@ -27,6 +27,7 @@ export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, sel
           cub={cub}
           estado={estado}
           seleccionado={sel}
+          esFavorito={favorito === `${cub.Piso}-${cub.ID_Cubiculo}`}
           onSelect={onSelect}
           reservadoPor={esAdmin && reserva ? reserva.Correo_Estudiante : ''}
         />

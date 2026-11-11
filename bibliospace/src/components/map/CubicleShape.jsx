@@ -9,16 +9,17 @@ const ICONOS = {
   bloqueado: blockedIcon,
 }
 
-export default function CubicleShape({ cub, estado, seleccionado, onSelect, reservadoPor }) {
+export default function CubicleShape({ cub, estado, seleccionado, esFavorito, onSelect, reservadoPor }) {
   const clickable = estado === 'disponible'
   return (
     <button
       type="button"
       disabled={!clickable}
       onClick={() => onSelect(cub)}
-      aria-label={`Cubículo ${cub.ID_Cubiculo}, piso ${cub.Piso}, ${ETIQUETAS[estado]}`}
+      aria-label={`Cubículo ${cub.ID_Cubiculo}, piso ${cub.Piso}, ${ETIQUETAS[estado]}${esFavorito ? ', favorito' : ''}`}
       className={`seat-card seat-card-${estado}${seleccionado ? ' is-selected' : ''}`}
     >
+      {esFavorito && <span className="seat-favorite-heart" aria-hidden="true">♥</span>}
       <img className={`seat-icon seat-icon-${estado}`} src={ICONOS[estado]} alt="" aria-hidden="true" />
       <span className="seat-number">Cubículo {cub.ID_Cubiculo}</span>
       <span className="seat-status">{ETIQUETAS[estado]}</span>

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { crearCubiculo, obtenerLogAdmin } from '../api/library'
 import BlockToggle from '../components/admin/BlockToggle'
+import RewardManagement from '../components/admin/RewardManagement'
 import ReleaseDialog from '../components/admin/ReleaseDialog'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
-import { rangoPorHoras } from '../utils/rewards'
 import { aHoras, estadoCubiculo, hoyISO, horaActual, OCUPA } from '../utils/time'
 
 import logo from '../assets/admin/admin-bibliospace-logo.png'
@@ -23,11 +23,13 @@ import dashboardIcon from '../assets/admin/nav-dashboard.svg'
 import cubiclesIcon from '../assets/admin/nav-cubicles.svg'
 import navActivityIcon from '../assets/admin/nav-activity.svg'
 import settingsIcon from '../assets/admin/nav-settings.svg'
+import rewardsIcon from '../assets/rewards/benefit-1.svg'
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: dashboardIcon, page: true },
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
+  { label: 'Recompensas', href: '#recompensas', icon: rewardsIcon },
   { label: 'Configuración', href: '#registro', icon: settingsIcon },
 ]
 
@@ -378,7 +380,7 @@ function UsageChart({ reservations, date }) {
 }
 
 export default function AdminPage() {
-  const { correo, nombre, rol, cerrarSesion, horasRecompensas, recompensasCargando, recompensasError } = useAuth()
+  const { correo, nombre, rol, cerrarSesion } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -463,7 +465,6 @@ export default function AdminPage() {
   const adminName = nombre || (correo
     ? correo.split('@')[0].split(/[._-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join(' ')
     : 'Administrador')
-  const rango = rangoPorHoras(horasRecompensas.acumuladas)
   const informarCambio = (mensaje) => {
     setAviso({ tipo: 'ok', texto: mensaje })
     recargar()
@@ -518,9 +519,6 @@ export default function AdminPage() {
           <span className="admin-profile-copy">
             <strong>{adminName}</strong>
             <span>Administrador</span>
-            <span className="admin-profile-level">
-              {recompensasError ? 'Nivel no disponible' : recompensasCargando ? 'Calculando nivel…' : `${rango.icono} Nivel ${rango.nivel} · ${rango.nombre}`}
-            </span>
           </span>
           <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
         </div>
@@ -533,7 +531,6 @@ export default function AdminPage() {
             <p>Panel de control en tiempo real.</p>
           </div>
           <div className="admin-header-actions">
-            <NavLink to="/recompensas" className="admin-rewards-link">Recompensas</NavLink>
             <label className="admin-search">
               <span className="admin-icon-box"><img src={searchIcon} alt="" /></span>
               <input
@@ -668,6 +665,7 @@ export default function AdminPage() {
             </section>
 
             <UsageChart reservations={reservas} date={hoy} />
+            <RewardManagement correo={correo} />
           </div>
 
           <div className="admin-secondary-column">

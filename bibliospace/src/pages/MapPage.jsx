@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { canjearCubiculoFavorito, quitarCubiculoFavorito } from '../api/library'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
 import { APERTURA, CIERRE, MAX_RESERVAS_DIA, MIN_PERSONAS, validarInvitado } from '../services/reservationRules'
-import { aHoras, conocidos, estadoVisible, horaActual, horaTexto, hoyISO, miembrosDe, reservaVigente } from '../utils/time'
+import { conocidos, horaActual, horaTexto, hoyISO, miembrosDe, reservaVigente } from '../utils/time'
 import CubicleMap from '../components/map/CubicleMap'
 import Legend from '../components/map/Legend'
 import { LockIcon } from '../components/auth/AuthIcons'
@@ -15,9 +16,9 @@ import cancellationsIcon from '../assets/stats-cancellations.png'
 
 const HORAS = Array.from({ length: CIERRE - APERTURA }, (_, index) => APERTURA + index)
 
-function fechaLocal(fecha) {
-  const [ano, mes, dia] = String(fecha).slice(0, 10).split('-').map(Number)
-  return new Date(ano, mes - 1, dia)
+function fechaISO(fecha) {
+  const pad = (numero) => String(numero).padStart(2, '0')
+  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}`
 }
 
 function esMismaPersona(reserva, correo) {
@@ -28,7 +29,7 @@ function esMismaPersona(reserva, correo) {
 }
 
 export default function MapPage() {
-  const { correo, rol } = useAuth()
+  const { correo, rol, horasRecompensas, refrescarRecompensas } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [fecha, setFecha] = useState(hoyISO)
   const [hora, setHora] = useState(() => Math.min(Math.max(horaActual(), APERTURA), CIERRE - 1))
@@ -38,41 +39,39 @@ export default function MapPage() {
   const [miembros, setMiembros] = useState([])
   const [mostrarModal, setMostrarModal] = useState(false)
   const [aviso, setAviso] = useState('')
+  const [procesandoFavorito, setProcesandoFavorito] = useState(false)
+  const [fechaMaxima, setFechaMaxima] = useState('')
 
   const pisos = [...new Set(cubiculos.map((cubiculo) => Number(cubiculo.Piso)))].sort((a, b) => a - b)
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const horasVentana = horasRecompensas.ventana48Restantes > 0 ? 48 : 24
+      setFechaMaxima(fechaISO(new Date(Date.now() + horasVentana * 60 * 60 * 1000)))
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [horasRecompensas.ventana48Restantes])
   const usuarioReservas = useMemo(
     () => reservas.filter((reserva) => correo && esMismaPersona(reserva, correo)),
     [reservas, correo],
   )
   const reservaActiva = correo ? reservaVigente(reservas, correo) : null
+  const recompensaFavorito = horasRecompensas.catalogo
+    .filter((item) => item.tipo === 'FAVORITO' && (item.stock === null || item.stock > 0))
+    .sort((a, b) => Number(a.costo_horas) - Number(b.costo_horas))[0]
 
   const estadisticas = useMemo(() => {
-    const hoy = fechaLocal(hoyISO())
-    const inicioSemana = new Date(hoy)
-    inicioSemana.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7))
-    const finSemana = new Date(inicioSemana)
-    finSemana.setDate(finSemana.getDate() + 7)
-
-    const completadasSemana = usuarioReservas.filter((reserva) => {
-      const fechaReserva = fechaLocal(reserva.Fecha)
-      return (
-        estadoVisible(reserva) === 'Finalizada' &&
-        fechaReserva >= inicioSemana &&
-        fechaReserva < finSemana
-      )
-    })
-    const horas = completadasSemana.reduce((total, reserva) => {
-      const [inicio, fin] = aHoras(reserva.Franja_Horaria)
-      return total + fin - inicio
-    }, 0)
     const cancelacionesHoy = usuarioReservas.filter(
       (reserva) =>
         reserva.Estado === 'Cancelada' &&
         String(reserva.Fecha_Cancelacion || '').slice(0, 10) === hoyISO(),
     ).length
 
-    return { horas, completadas: completadasSemana.length, cancelacionesHoy }
-  }, [usuarioReservas])
+    return {
+      horas: horasRecompensas.estaSemana,
+      completadas: horasRecompensas.reservasCompletadasEstaSemana,
+      cancelacionesHoy,
+    }
+  }, [usuarioReservas, horasRecompensas.estaSemana, horasRecompensas.reservasCompletadasEstaSemana])
 
   const cambiarPiso = (nuevoPiso) => {
     setPiso(nuevoPiso)
@@ -122,6 +121,37 @@ export default function MapPage() {
     if (nuevaHora + duracion > CIERRE) setDuracion(1)
   }
 
+  const elegirFavorito = async () => {
+    if (!seleccionado) return
+    if (!recompensaFavorito) {
+      setAviso('La recompensa de cubículo favorito no está disponible.')
+      return
+    }
+    if (horasRecompensas.saldo < Number(recompensaFavorito.costo_horas)) {
+      setAviso(`Necesitas ${recompensaFavorito.costo_horas} horas para marcar un cubículo como favorito.`)
+      return
+    }
+    setProcesandoFavorito(true)
+    const res = await canjearCubiculoFavorito(correo, recompensaFavorito.id, seleccionado.Piso, seleccionado.ID_Cubiculo)
+    setProcesandoFavorito(false)
+    if (res.status !== 'ok') {
+      setAviso(res.mensaje || 'No se pudo canjear la recompensa.')
+      return
+    }
+    const actualizacion = await refrescarRecompensas()
+    setAviso(actualizacion.status === 'ok' ? 'Cubículo favorito elegido y horas canjeadas.' : 'El canje se realizó, pero no se pudo actualizar el saldo.')
+  }
+
+  const quitarFavorito = async () => {
+    const res = await quitarCubiculoFavorito(correo)
+    if (res.status !== 'ok') {
+      setAviso(res.mensaje || 'No se pudo quitar el favorito.')
+      return
+    }
+    const actualizacion = await refrescarRecompensas()
+    setAviso(actualizacion.status === 'ok' ? 'Cubículo favorito quitado.' : 'Se quitó el favorito, pero no se pudo actualizar el saldo.')
+  }
+
   return (
     <div className="dashboard-page">
       <div className="page-heading">
@@ -163,6 +193,7 @@ export default function MapPage() {
               fecha={fecha}
               hora={hora}
               seleccionado={seleccionado}
+              favorito={horasRecompensas.favorito}
               esAdmin={rol === 'admin'}
               onSelect={seleccionarCubiculo}
             />
@@ -197,17 +228,46 @@ export default function MapPage() {
                   <input
                     type="date"
                     min={hoyISO()}
+                    max={fechaMaxima}
                     value={fecha}
                     onChange={(event) => setFecha(event.target.value)}
                   />
                 </label>
               </div>
               <p className="booking-note">Máximo 2 horas por reserva · De {APERTURA}:00 a {CIERRE}:00</p>
+              <p className="booking-note">
+                {horasRecompensas.ventana48Restantes > 0
+                  ? `Puedes reservar con hasta 48 horas de antelación (${horasRecompensas.ventana48Restantes} reservas extendidas disponibles).`
+                  : 'Las reservas se abren hasta 24 horas antes.'}
+              </p>
 
               {seleccionado && (
                 <p className="booking-selection">
                   Cubículo {seleccionado.ID_Cubiculo} · Piso {seleccionado.Piso}
                 </p>
+              )}
+              {seleccionado && correo && rol !== 'admin' && (
+                <div className="booking-favorite">
+                  {horasRecompensas.favorito === `${seleccionado.Piso}-${seleccionado.ID_Cubiculo}` ? (
+                    <>
+                      <span>❤️ Este es tu cubículo favorito.</span>
+                      <button type="button" onClick={quitarFavorito}>Quitar favorito</button>
+                    </>
+                  ) : horasRecompensas.favorito ? (
+                    <span>Ya tienes otro cubículo favorito. Quítalo para elegir este.</span>
+                  ) : (
+                    <>
+                      <span>¿Quieres marcarlo como favorito?</span>
+                      <button
+                        type="button"
+                        disabled={procesandoFavorito || !recompensaFavorito || horasRecompensas.saldo < Number(recompensaFavorito?.costo_horas || 0)}
+                        onClick={elegirFavorito}
+                      >
+                        {procesandoFavorito ? 'Canjeando…' : recompensaFavorito ? `Canjear ${recompensaFavorito.costo_horas} h y marcar` : 'Sin stock'}
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
 
               <div className="booking-members">
@@ -245,10 +305,10 @@ export default function MapPage() {
               <button
                 type="button"
                 className="booking-submit"
-                disabled={!seleccionado || !correo || cargando || miembros.length < MIN_PERSONAS - 1}
+                disabled={!seleccionado || !correo || rol === 'admin' || cargando || miembros.length < MIN_PERSONAS - 1}
                 onClick={() => setMostrarModal(true)}
               >
-                {seleccionado ? 'Confirmar Reserva' : 'Selecciona un cubículo'}
+                {rol === 'admin' ? 'Solo estudiantes pueden reservar' : seleccionado ? 'Confirmar Reserva' : 'Selecciona un cubículo'}
               </button>
             </div>
           </section>
@@ -305,6 +365,7 @@ export default function MapPage() {
           fecha={fecha}
           hora={hora}
           duracionInicial={duracion}
+          ventana48Restantes={horasRecompensas.ventana48Restantes}
           integrantesIniciales={miembros}
           onClose={() => setMostrarModal(false)}
           onCreated={(mensaje) => {
@@ -313,6 +374,7 @@ export default function MapPage() {
             setMiembros([])
             setAviso(mensaje)
             recargar()
+            refrescarRecompensas()
           }}
         />
       )}

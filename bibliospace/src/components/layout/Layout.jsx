@@ -9,7 +9,7 @@ import logoFooter from '../../assets/logo-footer.png'
 import notificationsIcon from '../../assets/rewards/notifications.svg'
 
 function PerfilMenu() {
-  const { correo, nombre, rol, cerrarSesion, horasRecompensas, recompensasCargando, recompensasError } = useAuth()
+  const { correo, nombre, rol, cerrarSesion, horasRecompensas } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   if (!correo) {
@@ -26,6 +26,7 @@ function PerfilMenu() {
   const visible = nombre || correo.split('@')[0]
   const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
   const rango = rangoPorHoras(horasRecompensas.acumuladas)
+  const colorRango = rango.color
 
   const salir = async () => {
     setAbierto(false)
@@ -40,13 +41,19 @@ function PerfilMenu() {
         <span className="profile-copy">
           <strong>{visible}</strong>
           <span>{rol === 'admin' ? 'Administrador' : 'Estudiante'}</span>
-          <span className="profile-level-badge" title={recompensasError ? 'No se pudo consultar tu nivel' : rango.nombre}>
-            {recompensasError ? 'Nivel no disponible' : recompensasCargando ? 'Calculando nivel…' : `${rango.icono} Nivel ${rango.nivel}`}
-          </span>
+          {rol !== 'admin' && (
+            <span className={`profile-level-badge rank-${rango.tono}`} style={{ '--rank-color': colorRango }} title={rango.nombre}>
+              {`${rango.icono} Nivel ${rango.nivel}`}
+            </span>
+          )}
         </span>
-        <span className="profile-avatar has-reward-level" aria-hidden="true">
+        <span
+          className={`profile-avatar${rol === 'admin' ? '' : ` has-reward-level rank-${rango.tono}`}`}
+          style={rol === 'admin' ? undefined : { '--rank-color': colorRango }}
+          aria-hidden="true"
+        >
           {iniciales}
-          <span className="profile-avatar-level">{rango.icono}</span>
+          {rol !== 'admin' && <span className="profile-avatar-level">{rango.icono}</span>}
         </span>
       </button>
       {abierto && (
@@ -77,7 +84,7 @@ export default function Layout() {
             <NavLink to="/" end className={link}>Inicio</NavLink>
             {correo && <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>}
             {correo && <NavLink to="/historial" className={link}>Historial</NavLink>}
-            <NavLink to="/recompensas" className={link}>Recompensas</NavLink>
+            {rol !== 'admin' && <NavLink to="/recompensas" className={link}>Recompensas</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
           <PerfilMenu />

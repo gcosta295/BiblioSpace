@@ -11,7 +11,7 @@ const ESTILO = {
 }
 
 export default function HistoryPage() {
-  const { correo } = useAuth()
+  const { correo, horasRecompensas, recompensasCargando, recompensasError } = useAuth()
   const { reservas, cargando, error } = useLibrary()
 
   if (!correo) return <p className="text-slate-600">Inicia sesión para ver tu historial.</p>
@@ -51,6 +51,31 @@ export default function HistoryPage() {
           })}
         </ul>
       )}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Historial de horas y recompensas</h2>
+        {recompensasError ? (
+          <p role="alert" className="text-sm text-red-600">No se pudo cargar el historial de recompensas.</p>
+        ) : recompensasCargando ? (
+          <p className="text-sm text-slate-500">Cargando movimientos…</p>
+        ) : horasRecompensas.historial.length ? (
+          <ul className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            {horasRecompensas.historial.map((evento, index) => (
+              <li key={`${evento.tipo}-${evento.id_reserva}-${index}`} className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <div>
+                  <p className="font-medium">{evento.tipo === 'ganada' ? 'Horas ganadas' : 'Recompensa canjeada'} · {evento.detalle}</p>
+                  <p className="text-sm text-slate-600">{evento.fecha}</p>
+                  {evento.bono_favorito > 0 && <p className="text-xs text-slate-500">Incluye bono de {evento.bono_favorito} horas por cubículo favorito.</p>}
+                </div>
+                <strong className={evento.horas < 0 ? 'text-red-700' : 'text-emerald-700'}>
+                  {evento.horas > 0 ? '+' : ''}{(Number(evento.horas) + Number(evento.bono_favorito || 0)).toFixed(2)} horas
+                </strong>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-slate-600">Aún no tienes horas ganadas ni canjes.</p>
+        )}
+      </section>
     </div>
   )
 }

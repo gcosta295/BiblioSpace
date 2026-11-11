@@ -1,12 +1,41 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import * as authApi from '../api/auth'
-import { obtenerReservas } from '../api/library'
+import { obtenerRecompensas } from '../api/library'
 import { supabase } from '../lib/supabase'
-import { calcularHorasRecompensas } from '../utils/rewards'
 
 const AuthContext = createContext(null)
 
 const PERFIL_VACIO = { nombre: '', carnet: '', rol: 'user' }
+const RECOMPENSAS_VACIAS = {
+  acumuladas: 0,
+  estaSemana: 0,
+  saldo: 0,
+  gastadas: 0,
+  reservasCompletadasEstaSemana: 0,
+  favorito: '',
+  reservaCancelacionProtegida: '',
+  ventana48Restantes: 0,
+  catalogo: [],
+  semanas: [],
+  historial: [],
+}
+
+const normalizarRecompensas = (res) => {
+  const semanas = Array.isArray(res.semanas) ? res.semanas : []
+  return {
+    acumuladas: Number(res.horas_acumuladas) || 0,
+    estaSemana: Number(semanas.at(-1)?.horas) || 0,
+    saldo: Number(res.saldo) || 0,
+    gastadas: Number(res.horas_gastadas) || 0,
+    reservasCompletadasEstaSemana: Number(res.reservas_completadas_esta_semana) || 0,
+    favorito: res.cubiculo_favorito || '',
+    reservaCancelacionProtegida: res.reserva_cancelacion_protegida || '',
+    ventana48Restantes: Number(res.ventana_48_restantes) || 0,
+    catalogo: Array.isArray(res.catalogo) ? res.catalogo : [],
+    semanas,
+    historial: Array.isArray(res.historial) ? res.historial : [],
+  }
+}
 
 // Sesión real con Supabase Auth. Se conserva la forma que usaban los demás componentes
 // (correo, rol, perfilCargando) y se suman nombre, carnet y las acciones de cuenta.
@@ -14,7 +43,7 @@ export function AuthProvider({ children }) {
   const [sesion, setSesion] = useState(undefined) // undefined = todavía comprobando
   const [perfil, setPerfil] = useState(PERFIL_VACIO)
   const [perfilCorreo, setPerfilCorreo] = useState('')
-  const [horasRecompensas, setHorasRecompensas] = useState({ acumuladas: 0, estaSemana: 0 })
+  const [recompensas, setRecompensas] = useState(RECOMPENSAS_VACIAS)
   const [correoRecompensas, setCorreoRecompensas] = useState('')
   const [recompensasErrorCorreo, setRecompensasErrorCorreo] = useState('')
 
@@ -26,6 +55,9 @@ export function AuthProvider({ children }) {
   }, [])
 
   const correo = sesion?.user?.email?.toLowerCase() ?? ''
+  const perfilListo = Boolean(correo) && perfilCorreo === correo
+  const datos = perfilListo ? perfil : PERFIL_VACIO
+  const perfilCargando = sesion === undefined || (Boolean(correo) && !perfilListo)
 
   useEffect(() => {
     if (!correo) return
@@ -41,22 +73,23 @@ export function AuthProvider({ children }) {
   }, [correo])
 
   useEffect(() => {
-    if (!correo) return
+    if (!correo || !perfilListo) return
+    if (datos.rol === 'admin') return
     let activo = true
-    obtenerReservas(correo)
-      .then((reservas) => {
+    obtenerRecompensas(correo)
+      .then((res) => {
         if (!activo) return
-        if (!Array.isArray(reservas)) {
+        if (res.status !== 'ok') {
           setRecompensasErrorCorreo(correo)
           setCorreoRecompensas(correo)
           return
         }
-        setHorasRecompensas(calcularHorasRecompensas(reservas, correo))
+        setRecompensas(normalizarRecompensas(res))
         setRecompensasErrorCorreo('')
         setCorreoRecompensas(correo)
       })
       .catch((error) => {
-        console.error('Error al calcular las horas de recompensas:', error)
+        console.error('Error al consultar las recompensas:', error)
         if (activo) {
           setRecompensasErrorCorreo(correo)
           setCorreoRecompensas(correo)
@@ -66,11 +99,22 @@ export function AuthProvider({ children }) {
     return () => {
       activo = false
     }
-  }, [correo])
+  }, [correo, perfilListo, datos.rol])
 
-  const perfilListo = Boolean(correo) && perfilCorreo === correo
-  const datos = perfilListo ? perfil : PERFIL_VACIO
-  const recompensasListas = Boolean(correo) && correoRecompensas === correo
+  const recompensasListas = Boolean(correo) && (datos.rol === 'admin' || correoRecompensas === correo)
+  const refrescarRecompensas = async () => {
+    if (!correo || datos.rol === 'admin') return { status: 'ok' }
+    const res = await obtenerRecompensas(correo)
+    if (res.status !== 'ok') {
+      setRecompensasErrorCorreo(correo)
+      setCorreoRecompensas(correo)
+      return res
+    }
+    setRecompensas(normalizarRecompensas(res))
+    setRecompensasErrorCorreo('')
+    setCorreoRecompensas(correo)
+    return res
+  }
 
   // Entra y devuelve { status, mensaje?, rol? }. Con comoAdmin solo deja pasar a administradores.
   const iniciarSesion = async ({ correo: c, clave, recordar, comoAdmin = false }) => {
@@ -97,10 +141,11 @@ export function AuthProvider({ children }) {
     carnet: datos.carnet,
     rol: datos.rol,
     sesionLista: sesion !== undefined,
-    perfilCargando: sesion === undefined || (Boolean(correo) && !perfilListo),
-    horasRecompensas: recompensasListas ? horasRecompensas : { acumuladas: 0, estaSemana: 0 },
-    recompensasCargando: Boolean(correo) && !recompensasListas,
-    recompensasError: recompensasListas && recompensasErrorCorreo === correo,
+    perfilCargando,
+    horasRecompensas: datos.rol === 'admin' ? RECOMPENSAS_VACIAS : recompensasListas ? recompensas : RECOMPENSAS_VACIAS,
+    recompensasCargando: Boolean(correo) && !recompensasListas && (perfilCargando || datos.rol !== 'admin'),
+    recompensasError: datos.rol !== 'admin' && recompensasListas && recompensasErrorCorreo === correo,
+    refrescarRecompensas,
     iniciarSesion,
     registrar,
     cerrarSesion: authApi.cerrarSesion,

@@ -24,6 +24,12 @@ function AdminRoute({ children }) {
   return rol === 'admin' ? children : <Navigate to="/" replace />
 }
 
+function StudentRoute({ children }) {
+  const { rol, perfilCargando } = useAuth()
+  if (perfilCargando) return <p className="admin-access-loading" role="status">Verificando permisos…</p>
+  return rol === 'admin' ? <Navigate to="/admin" replace /> : children
+}
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -34,7 +40,7 @@ export default function AppRouter() {
         <Route element={<RutaProtegida />}>
           <Route path="/mi-reserva" element={<MyReservationPage />} />
           <Route path="/historial" element={<HistoryPage />} />
-          <Route path="/recompensas" element={<RecompensasPage />} />
+          <Route path="/recompensas" element={<StudentRoute><RecompensasPage /></StudentRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
         </Route>
       </Route>
