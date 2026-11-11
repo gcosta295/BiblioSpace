@@ -178,6 +178,30 @@ export const liberarCubiculo = (correo, piso, cubiculoId, motivo) =>
     p_motivo: motivo,
   })
 
+// Notificaciones de la sesión actual, de la más reciente a la más antigua.
+// La base decide de quién son: no se le manda ningún correo, usa el de la sesión.
+export const obtenerNotificaciones = async (limite = 30) => {
+  const { data, error } = await supabase.rpc('listar_notificaciones', { p_limite: limite })
+  if (error) {
+    console.error('Error al leer las notificaciones:', error.message)
+    return []
+  }
+  return data.map((n) => ({
+    ID: n.id,
+    Tipo: n.tipo,
+    Titulo: n.titulo,
+    Detalle: n.detalle,
+    ID_Cubiculo: n.numero,
+    Piso: n.piso,
+    Fecha: n.marca_tiempo,
+    No_Leida: n.no_leida,
+  }))
+}
+
+// Marca todo lo anterior a este momento como leído. El contador queda en cero
+// hasta que pase algo nuevo, y como se guarda en la base, recargar no lo revive.
+export const marcarNotificacionesLeidas = () => rpc('marcar_notificaciones_leidas', {})
+
 // Solo admin: bloqueos, habilitaciones y liberaciones, de lo más reciente a lo más antiguo.
 export const obtenerLogAdmin = async (correo, limite = 20) => {
   const { data, error } = await supabase.rpc('listar_log_admin', { p_correo: correo, p_limite: limite })
