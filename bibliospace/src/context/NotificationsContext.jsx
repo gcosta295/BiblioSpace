@@ -9,20 +9,17 @@ const NotificationsContext = createContext(null)
 export function NotificationsProvider({ children }) {
   const { correo } = useAuth()
   const [notificaciones, setNotificaciones] = useState([])
-  const [listo, setListo] = useState(false)
+  const [cargadoPara, setCargadoPara] = useState(null)
+  const [marcadas, setMarcadas] = useState(false)
 
   const recargar = useCallback(async () => {
-    if (!correo) {
-      setNotificaciones([])
-      setListo(true)
-      return
-    }
-    setNotificaciones(await obtenerNotificaciones())
-    setListo(true)
+    const lista = correo ? await obtenerNotificaciones() : []
+    setNotificaciones(lista)
+    setMarcadas(false)
+    setCargadoPara(correo)
   }, [correo])
 
   useEffect(() => {
-    setListo(false)
     // eslint-disable-next-line react-hooks/set-state-in-effect
     recargar()
   }, [recargar])
@@ -38,15 +35,17 @@ export function NotificationsProvider({ children }) {
     }
   }, [recargar])
 
-  // Se guarda en la base que ya las vio y se apaga el contador en pantalla,
-  // sin volver a pedir la lista completa.
+  // El contador baja de una vez, sin esperar al servidor. La lista no se toca: las
+  // notificaciones siguen marcadas como nuevas mientras el usuario las está leyendo,
+  // y al recargar la página la base ya responde que están leídas.
   const marcarLeidas = useCallback(async () => {
-    if (!correo) return
+    if (!correo || marcadas) return
+    setMarcadas(true)
     await marcarNotificacionesLeidas()
-    setNotificaciones((previas) => previas.map((n) => (n.No_Leida ? { ...n, No_Leida: false } : n)))
-  }, [correo])
+  }, [correo, marcadas])
 
-  const noLeidas = notificaciones.reduce((total, n) => total + (n.No_Leida ? 1 : 0), 0)
+  const listo = cargadoPara === correo
+  const noLeidas = marcadas ? 0 : notificaciones.reduce((total, n) => total + (n.No_Leida ? 1 : 0), 0)
 
   return (
     <NotificationsContext value={{ notificaciones, noLeidas, listo, recargar, marcarLeidas }}>

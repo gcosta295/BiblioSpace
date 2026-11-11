@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useNotifications } from '../context/NotificationsContext'
 
@@ -26,17 +26,14 @@ const tiempoRelativo = (fecha) => {
 
 export default function NotificationsPage() {
   const { notificaciones, listo, marcarLeidas } = useNotifications()
-  // Se guardan cuáles estaban sin leer al entrar, para poder marcarlas en la lista
-  // aunque el contador de la campana ya se haya apagado.
-  const [nuevas, setNuevas] = useState(null)
 
+  // Entrar aquí es haberlas visto: el contador de la campana se apaga de inmediato,
+  // pero las nuevas siguen señaladas en la lista hasta la próxima recarga.
   useEffect(() => {
-    if (!listo || nuevas) return
-    setNuevas(new Set(notificaciones.filter((n) => n.No_Leida).map((n) => n.ID)))
-    marcarLeidas()
-  }, [listo, notificaciones, nuevas, marcarLeidas])
+    if (listo) marcarLeidas()
+  }, [listo, marcarLeidas])
 
-  const sinLeerAlEntrar = nuevas ? nuevas.size : 0
+  const nuevas = notificaciones.reduce((total, n) => total + (n.No_Leida ? 1 : 0), 0)
 
   return (
     <section className="notifs">
@@ -45,8 +42,8 @@ export default function NotificationsPage() {
         <p>
           {!listo
             ? 'Cargando…'
-            : sinLeerAlEntrar > 0
-              ? `Tienes ${sinLeerAlEntrar} ${sinLeerAlEntrar === 1 ? 'novedad' : 'novedades'} desde la última vez.`
+            : nuevas > 0
+              ? `Tienes ${nuevas} ${nuevas === 1 ? 'novedad' : 'novedades'} desde la última vez.`
               : 'Todo lo que pasa con tus reservas aparece aquí.'}
         </p>
       </header>
@@ -55,19 +52,18 @@ export default function NotificationsPage() {
         <div className="notifs-vacio">
           <p>Todavía no tienes notificaciones.</p>
           <p>
-            Cuando reserves un cubículo te avisamos aquí.{' '}
-            <Link to="/">Ver el mapa</Link>
+            Cuando reserves un cubículo te avisamos aquí. <Link to="/">Ver el mapa</Link>
           </p>
         </div>
       ) : (
         <ul className="notifs-lista">
           {notificaciones.map((n) => (
-            <li key={n.ID} className={`notifs-item${nuevas?.has(n.ID) ? ' es-nueva' : ''}`}>
+            <li key={n.ID} className={`notifs-item${n.No_Leida ? ' es-nueva' : ''}`}>
               <span className={`notifs-punto ${TONO[n.Tipo] || 'gris'}`} aria-hidden="true" />
               <div className="notifs-texto">
                 <p className="notifs-titulo">
                   {n.Titulo}
-                  {nuevas?.has(n.ID) && <span className="notifs-chip">Nueva</span>}
+                  {n.No_Leida && <span className="notifs-chip">Nueva</span>}
                 </p>
                 <p className="notifs-detalle">{n.Detalle}</p>
                 <p className="notifs-cuando">
