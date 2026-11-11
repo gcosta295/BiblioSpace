@@ -5,6 +5,7 @@ import MapPage from '../pages/MapPage'
 import MyReservationPage from '../pages/MyReservationPage'
 import AdminPage from '../pages/AdminPage'
 import HistoryPage from '../pages/HistoryPage'
+import NotificationsPage from '../pages/NotificationsPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 
@@ -33,6 +34,7 @@ export default function AppRouter() {
         <Route element={<RutaProtegida />}>
           <Route path="/mi-reserva" element={<MyReservationPage />} />
           <Route path="/historial" element={<HistoryPage />} />
+          <Route path="/notificaciones" element={<NotificationsPage />} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
         </Route>
       </Route>
