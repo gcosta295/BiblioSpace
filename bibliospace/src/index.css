@@ -2495,8 +2495,8 @@ select:focus-visible {
   }
 
   .floor-plan .seat-status {
-    font-size: 8px;
-    line-height: 11px;
+    font-size: 9px;
+    line-height: 12px;
   }
 
   .floor-plan .seat-favorite-heart {
@@ -2526,12 +2526,49 @@ select:focus-visible {
     margin: 2px 0 2px;
   }
 
+  /* En teléfono el estado lo dicen el color, el ícono y la leyenda: se oculta
+     la palabra para que el número del cubículo quede legible. */
   .floor-plan .seat-number {
-    font-size: 10px;
+    max-width: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 12px;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .floor-plan .seat-status {
-    font-size: 7px;
+    display: none;
+  }
+}
+
+/* Planos muy angostos (pop-up de favorito en teléfonos de 360 px): tarjetas un
+   poco más chicas para dejar aire entre las 4 de cada fila. */
+@container plano (max-width: 300px) {
+  .floor-plan .seat-card {
+    width: 54px;
+    height: 58px;
+    padding: 6px 2px 4px;
+  }
+
+  .floor-plan .seat-icon,
+  .floor-plan .seat-icon-ocupado,
+  .floor-plan .seat-icon-bloqueado {
+    width: 16px;
+    height: 16px;
+    margin: 0 0 2px;
+  }
+
+  .floor-plan .seat-number {
+    font-size: 10px;
+    letter-spacing: -0.2px;
+  }
+
+  .floor-plan .seat-favorite-heart {
+    top: 1px;
+    right: 3px;
+    font-size: 11px;
   }
 }
 
