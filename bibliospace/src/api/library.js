@@ -178,14 +178,6 @@ export const liberarCubiculo = (correo, piso, cubiculoId, motivo) =>
     p_motivo: motivo,
   })
 
-// Solo admin (HU mapa de cubículos): guarda la posición física de varios cubículos
-// de una vez. cambios = [{ piso, cubiculo, x, y }] con x/y en % del plano del piso.
-export const ubicarCubiculos = (correo, cambios) =>
-  rpc('ubicar_cubiculos', {
-    p_correo: correo,
-    p_cambios: cambios.map((c) => ({ id: idCubiculo(c.piso, c.cubiculo), x: c.x, y: c.y })),
-  })
-
 // Notificaciones de la sesión actual, de la más reciente a la más antigua.
 // La base decide de quién son: no se le manda ningún correo, usa el de la sesión.
 export const obtenerNotificaciones = async (limite = 30) => {
