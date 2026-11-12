@@ -48,31 +48,48 @@ export function posicionesDelPiso(cubiculos) {
   }
 
   // Plano a medio levantar (p. ej. un cubículo recién creado que el admin aún no
-  // ubica): los que ya tienen posición se quedan en su sitio y los pendientes se
-  // alinean en la franja libre sobre las estanterías, para que sigan reservables.
+  // ubica): los que ya tienen posición se quedan en su sitio y los pendientes
+  // ocupan los huecos libres del plano por defecto, para que sigan reservables.
   const ubicados = cubiculos.filter(tienePosicion)
-  if (ubicados.length > 0) {
-    const pendientes = cubiculos.filter((cub) => !tienePosicion(cub))
-    return {
-      real: true,
-      piezas: [
-        ...ubicados.map((cub) => ({ cub, x: num(cub.Pos_X), y: num(cub.Pos_Y) })),
-        ...pendientes.map((cub, i) => ({
-          cub,
-          x: 14 + (i % 5) * 16,
-          y: 76 - Math.floor(i / 5) * 12,
-        })),
-      ],
-    }
-  }
+  const pendientes = cubiculos.filter((cub) => !tienePosicion(cub))
+  const piso = Number(cubiculos[0]?.Piso)
+  const libres = huecosLibres(piso, ubicados)
 
-  const columnas = Math.min(3, Math.max(1, cubiculos.length))
+  // Sin ninguna posición guardada (base de datos aún sin el script del plano)
+  // se usa el plano por defecto: el mismo que siembra db/11_mapa_cubiculos.sql,
+  // que nunca tapa entrada, escalera, atención ni estanterías.
   return {
-    real: false,
-    piezas: cubiculos.map((cub, i) => ({
-      cub,
-      x: 12 + (i % columnas) * (76 / Math.max(columnas - 1, 1)),
-      y: 18 + Math.floor(i / columnas) * 34,
-    })),
+    real: ubicados.length > 0,
+    piezas: [
+      ...ubicados.map((cub) => ({ cub, x: num(cub.Pos_X), y: num(cub.Pos_Y) })),
+      ...pendientes.map((cub, i) => ({ cub, ...libres[Math.min(i, libres.length - 1)] })),
+    ],
   }
+}
+
+// Plano por defecto, en orden de número de cubículo. Debe coincidir con las
+// posiciones iniciales de db/11_mapa_cubiculos.sql.
+const PLANO_POR_DEFECTO = {
+  1: [[17, 19], [39, 19], [61, 19], [83, 19], [28, 56], [56, 56]],
+  2: [[20, 19], [42, 19], [64, 19], [86, 19], [36, 56], [64, 56]],
+}
+
+// Hueco extra por piso (en la fila de abajo, lejos de entrada y escalera) para
+// un cubículo recién creado que el admin aún no ubica. Probado a 360, 390, 820,
+// 1024, 1280 y 1440 px sin tapar nada.
+const HUECOS_EXTRA = {
+  1: [[78, 56]],
+  2: [[86, 56]],
+}
+
+// Distancia mínima (en %) entre centros para considerar libre un hueco.
+const SEPARACION = { x: 18, y: 26 }
+
+function huecosLibres(piso, ubicados) {
+  const candidatos = [...(PLANO_POR_DEFECTO[piso] ?? PLANO_POR_DEFECTO[1]), ...(HUECOS_EXTRA[piso] ?? HUECOS_EXTRA[1])]
+  const ocupados = ubicados.map((cub) => [num(cub.Pos_X), num(cub.Pos_Y)])
+  const libres = candidatos.filter(
+    ([x, y]) => !ocupados.some(([ox, oy]) => Math.abs(ox - x) < SEPARACION.x && Math.abs(oy - y) < SEPARACION.y),
+  )
+  return (libres.length ? libres : candidatos).map(([x, y]) => ({ x, y }))
 }
