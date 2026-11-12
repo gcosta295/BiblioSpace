@@ -626,6 +626,8 @@
 }
 
 /* ───── Responsive ─────
+   (Más abajo, a ≤380 px de plano, los botones bajan a 56 px para que 4 por fila
+   no se toquen en teléfonos de 360 px.) 
    El tamaño del botón depende del ancho del PLANO (container query), no de la
    pantalla: en tablet el plano es angosto aunque la ventana no lo sea. */
 
@@ -732,5 +734,17 @@
 
   .admin-map-unplaced {
     margin-left: 0;
+  }
+}
+
+@container plano-admin (max-width: 380px) {
+  .admin-map-cubicle {
+    width: 56px;
+    padding: 5px 6px 6px;
+  }
+
+  .admin-map-cubicle-num {
+    font-size: 15px;
+    line-height: 17px;
   }
 }
