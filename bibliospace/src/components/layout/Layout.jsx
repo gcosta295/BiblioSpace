@@ -1,12 +1,33 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useNotifications } from '../../context/NotificationsContext'
 import { rangoPorHoras } from '../../utils/rewards'
 
 import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
 import notificationsIcon from '../../assets/rewards/notifications.svg'
+
+// La campana lleva al apartado de notificaciones y muestra cuántas van sin leer.
+function Campana() {
+  const { noLeidas } = useNotifications()
+  const etiqueta = noLeidas > 0 ? `Notificaciones, ${noLeidas} sin leer` : 'Notificaciones'
+
+  return (
+    <NavLink
+      to="/notificaciones"
+      className={({ isActive }) => `notification-link${isActive ? ' is-active' : ''}`}
+      aria-label={etiqueta}
+      title={etiqueta}
+    >
+      <img className="notification-icon" src={notificationsIcon} alt="" aria-hidden="true" />
+      {noLeidas > 0 && (
+        <span className="notification-badge" aria-hidden="true">{noLeidas > 9 ? '9+' : noLeidas}</span>
+      )}
+    </NavLink>
+  )
+}
 
 function PerfilMenu() {
   const { correo, nombre, rol, cerrarSesion, horasRecompensas } = useAuth()
@@ -35,7 +56,7 @@ function PerfilMenu() {
 
   return (
     <div className="profile" id="profile">
-      <img className="notification-icon" src={notificationsIcon} alt="" aria-hidden="true" />
+      <Campana />
       <div className="profile-divider" />
       <button type="button" className="profile-button" aria-expanded={abierto} onClick={() => setAbierto((actual) => !actual)}>
         <span className="profile-copy">
