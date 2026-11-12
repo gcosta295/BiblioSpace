@@ -71,6 +71,7 @@ export default function ReservationModal({
           value={nombre}
           onChange={(e) => setNombre(e.target.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, ''))}
           maxLength={100}
+          readOnly={Boolean(nombrePerfil)}
           autoComplete="name"
           placeholder="Nombre completo (solo letras)"
           className={field}
@@ -81,6 +82,7 @@ export default function ReservationModal({
           onChange={(e) => setCarnet(e.target.value.replace(/\D/g, '').slice(0, 11))}
           inputMode="numeric"
           maxLength={11}
+          readOnly={Boolean(carnetPerfil)}
           placeholder="Carnet (11 dígitos)"
           className={field}
         />

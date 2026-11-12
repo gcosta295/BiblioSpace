@@ -1958,8 +1958,7 @@ select:focus-visible {
     gap: 8px;
   }
 
-  .profile-divider,
-  .notification-icon {
+  .profile-divider {
     display: none;
   }
 
