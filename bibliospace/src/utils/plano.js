@@ -47,25 +47,6 @@ export function posicionesDelPiso(cubiculos) {
     }
   }
 
-  // Plano a medio levantar (p. ej. un cubículo recién creado que el admin aún no
-  // ubica): los que ya tienen posición se quedan en su sitio y los pendientes se
-  // alinean en la franja libre sobre las estanterías, para que sigan reservables.
-  const ubicados = cubiculos.filter(tienePosicion)
-  if (ubicados.length > 0) {
-    const pendientes = cubiculos.filter((cub) => !tienePosicion(cub))
-    return {
-      real: true,
-      piezas: [
-        ...ubicados.map((cub) => ({ cub, x: num(cub.Pos_X), y: num(cub.Pos_Y) })),
-        ...pendientes.map((cub, i) => ({
-          cub,
-          x: 14 + (i % 5) * 16,
-          y: 76 - Math.floor(i / 5) * 12,
-        })),
-      ],
-    }
-  }
-
   const columnas = Math.min(3, Math.max(1, cubiculos.length))
   return {
     real: false,

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { bloquearCubiculo, crearCubiculo, obtenerLogAdmin, ubicarCubiculos } from '../api/library'
-import AdminFloorMap from '../components/admin/AdminFloorMap'
+import { crearCubiculo, obtenerLogAdmin } from '../api/library'
 import BlockToggle from '../components/admin/BlockToggle'
 import RewardManagement from '../components/admin/RewardManagement'
 import ReleaseDialog from '../components/admin/ReleaseDialog'
@@ -169,11 +168,6 @@ const activityForLog = (entry) => {
     HABILITACION: {
       title: 'Cubículo Habilitado',
       detail: `${cubicle} volvió a estar disponible.`,
-      icon: grayBullet,
-    },
-    UBICACION: {
-      title: 'Plano Actualizado',
-      detail: `${admin} movió ${cubicle} a una nueva posición en el mapa.`,
       icon: grayBullet,
     },
   }
@@ -582,34 +576,6 @@ export default function AdminPage() {
             <button type="button" onClick={recargar}>Reintentar</button>
           </div>
         )}
-
-        <AdminFloorMap
-          cubiculos={cubiculos}
-          floors={floors}
-          correo={correo}
-          estadoDe={(cubicle) => cubicleReservation(cubicle, reservas, hoy, hora)}
-          nombreDe={displayName}
-          onLiberar={setLiberando}
-          onBloquear={async (cubicle, bloquear, motivo) => {
-            const res = await bloquearCubiculo(correo, cubicle.Piso, cubicle.ID_Cubiculo, bloquear, motivo)
-            if (res.status !== 'ok') {
-              setAviso({ tipo: 'error', texto: res.mensaje || 'No se pudo actualizar.' })
-              return false
-            }
-            informarCambio(`Cubículo ${cubicle.ID_Cubiculo} (piso ${cubicle.Piso}) ${bloquear ? 'bloqueado' : 'desbloqueado'}.`)
-            return true
-          }}
-          onGuardarPlano={async (cambios) => {
-            const res = await ubicarCubiculos(correo, cambios)
-            if (res.status !== 'ok') {
-              setAviso({ tipo: 'error', texto: res.mensaje || 'No se pudo guardar el plano.' })
-              recargar()
-              return false
-            }
-            informarCambio(`Plano guardado: ${cambios.length} ${cambios.length === 1 ? 'cubículo reubicado' : 'cubículos reubicados'}.`)
-            return true
-          }}
-        />
 
         <div className="admin-content-grid">
           <div className="admin-primary-column">
