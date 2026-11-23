@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../context/NotificationsContext'
 import { rangoPorHoras } from '../../utils/rewards'
 
+import ThemeToggle from './ThemeToggle'
 import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
@@ -30,7 +31,7 @@ function Campana() {
 }
 
 function PerfilMenu() {
-  const { correo, nombre, rol, cerrarSesion, horasRecompensas } = useAuth()
+  const { correo, nombre, username, fotoPerfil, rol, cerrarSesion, horasRecompensas } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   if (!correo) {
@@ -44,7 +45,7 @@ function PerfilMenu() {
     )
   }
 
-  const visible = nombre || correo.split('@')[0]
+  const visible = username || nombre || correo.split('@')[0]
   const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
   const rango = rangoPorHoras(horasRecompensas.acumuladas)
   const colorRango = rango.color
@@ -73,13 +74,14 @@ function PerfilMenu() {
           style={rol === 'admin' ? undefined : { '--rank-color': colorRango }}
           aria-hidden="true"
         >
-          {iniciales}
+          {fotoPerfil ? <img src={fotoPerfil} alt="" className="perfil-foto-avatar" /> : iniciales}
           {rol !== 'admin' && <span className="profile-avatar-level">{rango.icono}</span>}
         </span>
       </button>
       {abierto && (
         <div className="profile-form profile-menu">
           <span className="profile-menu-correo">{correo}</span>
+          <Link to="/perfil" onClick={() => setAbierto(false)}>Editar perfil</Link>
           <button type="button" onClick={salir}>Cerrar sesión</button>
         </div>
       )}
@@ -108,7 +110,10 @@ export default function Layout() {
             {rol !== 'admin' && <NavLink to="/recompensas" className={link}>Recompensas</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
-          <PerfilMenu />
+          <div className="site-header-actions">
+            <ThemeToggle />
+            <PerfilMenu />
+          </div>
         </div>
       </header>}
       <main className={`site-main${pathname === '/recompensas' ? ' rewards-main' : ''}`}>

@@ -1,3 +1,4 @@
+import ThemeToggle from '../components/layout/ThemeToggle'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { crearCubiculo, obtenerLogAdmin } from '../api/library'
@@ -380,7 +381,7 @@ function UsageChart({ reservations, date }) {
 }
 
 export default function AdminPage() {
-  const { correo, nombre, rol, cerrarSesion } = useAuth()
+  const { correo, nombre, username, rol, cerrarSesion } = useAuth()
   const { cubiculos, reservas, cargando, error, recargar } = useLibrary()
   const [aviso, setAviso] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -462,7 +463,7 @@ export default function AdminPage() {
     .sort((first, second) => (second.timestamp || 0) - (first.timestamp || 0))
     .slice(0, 4)
 
-  const adminName = nombre || (correo
+  const adminName = username || nombre || (correo
     ? correo.split('@')[0].split(/[._-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join(' ')
     : 'Administrador')
   const informarCambio = (mensaje) => {
@@ -520,6 +521,7 @@ export default function AdminPage() {
             <strong>{adminName}</strong>
             <span>Administrador</span>
           </span>
+          <NavLink to="/perfil" className="admin-logout">Editar perfil</NavLink>
           <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
         </div>
       </aside>
@@ -531,6 +533,7 @@ export default function AdminPage() {
             <p>Panel de control en tiempo real.</p>
           </div>
           <div className="admin-header-actions">
+            <ThemeToggle />
             <label className="admin-search">
               <span className="admin-icon-box"><img src={searchIcon} alt="" /></span>
               <input

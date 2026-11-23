@@ -42,6 +42,8 @@ const normalizarRecompensas = (res) => {
 export function AuthProvider({ children }) {
   const [sesion, setSesion] = useState(undefined) // undefined = todavía comprobando
   const [perfil, setPerfil] = useState(PERFIL_VACIO)
+  const [fotoVisible, setFotoVisible] = useState(null)
+  const [versionFoto, setVersionFoto] = useState(0)
   const [perfilCorreo, setPerfilCorreo] = useState('')
   const [recompensas, setRecompensas] = useState(RECOMPENSAS_VACIAS)
   const [correoRecompensas, setCorreoRecompensas] = useState('')
@@ -55,6 +57,24 @@ export function AuthProvider({ children }) {
   }, [])
 
   const correo = sesion?.user?.email?.toLowerCase() ?? ''
+  const idUsuario = sesion?.user?.id
+  useEffect(() => {
+    if (!idUsuario) return
+    let activo = true
+    let url
+    authApi.descargarFotoPerfil(idUsuario).then((archivo) => {
+      if (!activo) return
+      url = archivo ? URL.createObjectURL(archivo) : undefined
+      setFotoVisible({ id: idUsuario, version: versionFoto, url })
+    }).catch(() => {
+      if (activo) setFotoVisible(null)
+    })
+    return () => {
+      activo = false
+      if (url) URL.revokeObjectURL(url)
+    }
+  }, [idUsuario, versionFoto])
+
   const perfilListo = Boolean(correo) && perfilCorreo === correo
   const datos = perfilListo ? perfil : PERFIL_VACIO
   const perfilCargando = sesion === undefined || (Boolean(correo) && !perfilListo)
@@ -135,9 +155,31 @@ export function AuthProvider({ children }) {
   const registrar = (datosRegistro) =>
     authApi.registrarUsuario({ ...datosRegistro, correo: datosRegistro.correo.trim().toLowerCase() })
 
+  const guardarDatosPerfil = async (cambios) => {
+    const res = await authApi.guardarDatosPerfil(cambios)
+    if (res.status === 'ok') {
+      setPerfil((actual) => actual.correo === correo
+        ? { ...actual, username: res.username, telefono: res.telefono }
+        : actual)
+    }
+    return res
+  }
+
+  const guardarFotoPerfil = async (archivo, tipo) => {
+    if (!idUsuario) return { status: 'error', mensaje: 'Debes iniciar sesión para continuar.' }
+    const res = await authApi.guardarFotoPerfil(idUsuario, archivo, tipo)
+    if (res.status === 'ok') setVersionFoto((version) => version + 1)
+    return res
+  }
+
   const valor = {
     correo,
     nombre: datos.nombre,
+    username: datos.username ?? '',
+    telefono: datos.telefono ?? '',
+    fotoPerfil: fotoVisible?.id === idUsuario && fotoVisible?.version === versionFoto ? fotoVisible.url : undefined,
+    guardarDatosPerfil,
+    guardarFotoPerfil,
     carnet: datos.carnet,
     rol: datos.rol,
     sesionLista: sesion !== undefined,
