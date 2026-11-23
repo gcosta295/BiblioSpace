@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/perfil", "destination": "/index.html" }
+  ]
+}
