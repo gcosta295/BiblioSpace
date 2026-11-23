@@ -1,0 +1,49 @@
+:root {
+  color-scheme: light dark;
+  --theme-canvas: #10141f;
+  --theme-surface: #1b2333;
+  --theme-surface-raised: #252f42;
+  --theme-surface-warm: #352a23;
+  --theme-surface-blue: #283658;
+  --theme-surface-green: #1c382f;
+  --theme-surface-red: #44282e;
+  --theme-surface-yellow: #3e3323;
+  --theme-border: #47546b;
+  --theme-text: #f0f3fa;
+  --theme-text-muted: #b9c3d4;
+  --theme-text-blue: #b9c8ff;
+  --theme-text-orange: #ffc17b;
+  --theme-text-green: #8ce1ad;
+  --theme-text-red: #ffaaa9;
+  --theme-brand: #804500;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+.theme-toggle {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 12%));
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}

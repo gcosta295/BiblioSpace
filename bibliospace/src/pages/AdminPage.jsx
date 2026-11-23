@@ -1,3 +1,4 @@
+import ThemeToggle from '../components/layout/ThemeToggle'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { bloquearCubiculo, crearCubiculo, obtenerLogAdmin, ubicarCubiculos } from '../api/library'
@@ -537,6 +538,7 @@ export default function AdminPage() {
             <p>Panel de control en tiempo real.</p>
           </div>
           <div className="admin-header-actions">
+            <ThemeToggle />
             <label className="admin-search">
               <span className="admin-icon-box"><img src={searchIcon} alt="" /></span>
               <input

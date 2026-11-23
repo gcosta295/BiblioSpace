@@ -43,8 +43,8 @@ function IconoArrastre() {
 function IconoPlano() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" stroke="#212e84" strokeWidth="2" />
-      <path d="M3 10h7v11M14 3v7h7" stroke="#212e84" strokeWidth="2" />
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 10h7v11M14 3v7h7" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }

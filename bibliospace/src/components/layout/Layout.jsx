@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { rangoPorHoras } from '../../utils/rewards'
 
+import ThemeToggle from './ThemeToggle'
 import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
@@ -87,7 +88,10 @@ export default function Layout() {
             {rol !== 'admin' && <NavLink to="/recompensas" className={link}>Recompensas</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
-          <PerfilMenu />
+          <div className="site-header-actions">
+            <ThemeToggle />
+            <PerfilMenu />
+          </div>
         </div>
       </header>}
       <main className={`site-main${pathname === '/recompensas' ? ' rewards-main' : ''}`}>
