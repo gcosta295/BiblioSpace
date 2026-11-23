@@ -1,0 +1,43 @@
+.perfil-editor h1 {
+  margin: 0 0 20px;
+}
+
+.perfil-editor-foto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.perfil-editor-foto input {
+  max-width: 100%;
+}
+
+.perfil-foto-avatar,
+.perfil-foto-vista {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.perfil-foto-avatar {
+  width: 100%;
+  height: 100%;
+}
+
+.perfil-foto-vista {
+  width: 72px;
+  height: 72px;
+}
+
+.perfil-accion {
+  justify-self: start;
+  padding: 10px 16px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.perfil-accion:disabled {
+  cursor: wait;
+}

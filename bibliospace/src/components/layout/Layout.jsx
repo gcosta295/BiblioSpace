@@ -10,7 +10,7 @@ import logoFooter from '../../assets/logo-footer.png'
 import notificationsIcon from '../../assets/rewards/notifications.svg'
 
 function PerfilMenu() {
-  const { correo, nombre, rol, cerrarSesion, horasRecompensas } = useAuth()
+  const { correo, nombre, username, fotoPerfil, rol, cerrarSesion, horasRecompensas } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   if (!correo) {
@@ -24,7 +24,7 @@ function PerfilMenu() {
     )
   }
 
-  const visible = nombre || correo.split('@')[0]
+  const visible = username || nombre || correo.split('@')[0]
   const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
   const rango = rangoPorHoras(horasRecompensas.acumuladas)
   const colorRango = rango.color
@@ -53,13 +53,14 @@ function PerfilMenu() {
           style={rol === 'admin' ? undefined : { '--rank-color': colorRango }}
           aria-hidden="true"
         >
-          {iniciales}
+          {fotoPerfil ? <img src={fotoPerfil} alt="" className="perfil-foto-avatar" /> : iniciales}
           {rol !== 'admin' && <span className="profile-avatar-level">{rango.icono}</span>}
         </span>
       </button>
       {abierto && (
         <div className="profile-form profile-menu">
           <span className="profile-menu-correo">{correo}</span>
+          <Link to="/perfil" onClick={() => setAbierto(false)}>Editar perfil</Link>
           <button type="button" onClick={salir}>Cerrar sesión</button>
         </div>
       )}

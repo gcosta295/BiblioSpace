@@ -63,3 +63,28 @@ export const obtenerMiPerfil = async () => {
   if (error) return { status: 'error', mensaje: error.message }
   return { status: 'ok', ...data }
 }
+
+export const guardarDatosPerfil = async ({ username, telefono }) => {
+  const { data, error } = await supabase.rpc('guardar_datos_perfil', {
+    p_username: username,
+    p_telefono: telefono,
+  })
+  return error ? { status: 'error', mensaje: traducir(error) } : { status: 'ok', ...data }
+}
+
+const fotosPerfil = () => supabase.storage.from('fotos-perfil')
+const rutaFoto = (id) => `${id}/foto`
+
+export const descargarFotoPerfil = async (id) => {
+  const { data } = await fotosPerfil().download(rutaFoto(id), {}, { cache: 'no-store' })
+  return data
+}
+
+export const guardarFotoPerfil = async (id, archivo, tipo) => {
+  const { error } = await fotosPerfil().upload(rutaFoto(id), archivo, {
+    contentType: tipo,
+    cacheControl: '0',
+    upsert: true,
+  })
+  return error ? { status: 'error', mensaje: traducir(error) } : { status: 'ok' }
+}
