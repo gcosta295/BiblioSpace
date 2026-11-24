@@ -1931,21 +1931,19 @@ select:focus-visible {
   }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 1100px) {
   .site-header-inner {
     flex-wrap: wrap;
-    justify-content: space-between;
     gap: 8px 14px;
     padding: 8px 0 10px;
   }
 
-  .brand-link img {
-    width: 160px;
+  .site-header-actions {
+    margin-left: auto;
   }
 
   .site-nav {
-    order: 3;
-    width: 100%;
+    order: 1;
     flex: 1 0 100%;
     justify-content: flex-start;
     gap: 22px;
@@ -1954,6 +1952,12 @@ select:focus-visible {
 
   .site-nav-link {
     padding: 5px 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .brand-link img {
+    width: 160px;
   }
 
   .profile {
