@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { comprobarFotoPerfil, validarDatosPerfil } from '../utils/perfil'
+import { comprobarFotoPerfil, telefonoParaGuardar, telefonoParaMostrar, validarDatosPerfil } from '../utils/perfil'
 import './PerfilPage.css'
 
 function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil }) {
   const [username, setUsername] = useState(usernameInicial)
-  const [telefono, setTelefono] = useState(telefonoInicial)
+  const [telefono, setTelefono] = useState(() => telefonoParaMostrar(telefonoInicial))
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
 
@@ -20,10 +20,10 @@ function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil
     setGuardando(true)
     setMensaje('')
     try {
-      const resultado = await guardarDatosPerfil(cambios)
+      const resultado = await guardarDatosPerfil({ ...cambios, telefono: telefonoParaGuardar(cambios.telefono) })
       if (resultado.status === 'ok') {
         setUsername(resultado.username)
-        setTelefono(resultado.telefono)
+        setTelefono(telefonoParaMostrar(resultado.telefono))
       }
       setMensaje(resultado.status === 'ok' ? 'Perfil actualizado.' : resultado.mensaje)
     } catch {
@@ -46,7 +46,7 @@ function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil
       <label className="auth-field">
         <span className="auth-field-head">Número telefónico</span>
         <span className="auth-input-wrap">
-          <input type="tel" autoComplete="tel" value={telefono} placeholder="+58-4242789290"
+          <input type="tel" autoComplete="tel-national" inputMode="numeric" value={telefono} placeholder="04248856911"
             onChange={(e) => setTelefono(e.target.value)} disabled={guardando} />
         </span>
       </label>
