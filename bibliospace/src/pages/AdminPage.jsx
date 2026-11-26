@@ -27,7 +27,7 @@ import settingsIcon from '../assets/admin/nav-settings.svg'
 import rewardsIcon from '../assets/rewards/benefit-1.svg'
 
 const navItems = [
-  { label: 'Volver al Mapa', href: '/', icon: cubiclesIcon, page: true },
+  { label: 'Inicio', href: '/', icon: cubiclesIcon, page: true },
   { label: 'Dashboard', href: '/admin', icon: dashboardIcon, page: true },
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
@@ -539,6 +539,7 @@ export default function AdminPage() {
             <p>Panel de control en tiempo real.</p>
           </div>
           <div className="admin-header-actions">
+            <NavLink to="/" className="admin-home-link">Inicio</NavLink>
             <ThemeToggle />
             <label className="admin-search">
               <span className="admin-icon-box"><img src={searchIcon} alt="" /></span>

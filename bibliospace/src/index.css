@@ -1182,6 +1182,26 @@ select:focus-visible {
   display: flex;
   flex: 0 1 auto;
   align-items: center;
+  gap: 10px;
+}
+
+.admin-home-link {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px solid light-dark(#212e84, var(--theme-text-blue));
+  border-radius: 8px;
+  background: light-dark(#fff, var(--theme-surface));
+  color: light-dark(#212e84, var(--theme-text-blue));
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-home-link:hover {
+  background: light-dark(#eef2ff, var(--theme-surface-blue));
 }
 
 .admin-rewards-link {
