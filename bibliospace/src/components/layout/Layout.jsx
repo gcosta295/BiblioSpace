@@ -110,8 +110,8 @@ export default function Layout() {
           </NavLink>
           <nav className={`site-nav${correo ? '' : ' site-nav-guest'}`} aria-label="Navegación principal">
             <NavLink to="/" end className={link}>Inicio</NavLink>
-            {correo && <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>}
-            {correo && <NavLink to="/historial" className={link}>Historial</NavLink>}
+            {correo && rol !== 'admin' && <NavLink to="/mi-reserva" className={link}>Mis Reservas</NavLink>}
+            {correo && rol !== 'admin' && <NavLink to="/historial" className={link}>Historial</NavLink>}
             {rol !== 'admin' && <NavLink to="/recompensas" className={link}>Recompensas</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>

@@ -40,9 +40,9 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route element={<RutaProtegida />}>
-          <Route path="/mi-reserva" element={<MyReservationPage />} />
+          <Route path="/mi-reserva" element={<StudentRoute><MyReservationPage /></StudentRoute>} />
           <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/historial" element={<HistoryPage />} />
+          <Route path="/historial" element={<StudentRoute><HistoryPage /></StudentRoute>} />
           <Route path="/notificaciones" element={<StudentRoute><NotificationsPage /></StudentRoute>} />
           <Route path="/recompensas" element={<StudentRoute><RecompensasPage /></StudentRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
