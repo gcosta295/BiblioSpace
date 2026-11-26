@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useNotifications } from '../context/NotificationsContext'
+import { useAuth } from '../context/AuthContext'
 
 // El color del punto dice de qué se trata sin tener que leer el título.
 const TONO = {
@@ -9,6 +10,7 @@ const TONO = {
   RESERVA_CANCELADA: 'naranja',
   RESERVA_EXPIRADA: 'gris',
   LIBERACION: 'rojo',
+  SUSPENSION: 'rojo',
 }
 
 const tiempoRelativo = (fecha) => {
@@ -26,12 +28,17 @@ const tiempoRelativo = (fecha) => {
 
 export default function NotificationsPage() {
   const { notificaciones, listo, marcarLeidas } = useNotifications()
+  const { correo } = useAuth()
+  const marcadoPara = useRef('')
 
   // Entrar aquí es haberlas visto: el contador de la campana se apaga de inmediato,
   // pero las nuevas siguen señaladas en la lista hasta la próxima recarga.
   useEffect(() => {
-    if (listo) marcarLeidas()
-  }, [listo, marcarLeidas])
+    if (listo && correo && marcadoPara.current !== correo) {
+      marcadoPara.current = correo
+      marcarLeidas()
+    }
+  }, [correo, listo, marcarLeidas])
 
   const nuevas = notificaciones.reduce((total, n) => total + (n.No_Leida ? 1 : 0), 0)
 
@@ -68,7 +75,9 @@ export default function NotificationsPage() {
                 <p className="notifs-detalle">{n.Detalle}</p>
                 <p className="notifs-cuando">
                   <time dateTime={String(n.Fecha).replace(' ', 'T')}>{tiempoRelativo(n.Fecha)}</time>
-                  {' · '}Cubículo {n.ID_Cubiculo} · Piso {n.Piso}
+                  {n.ID_Cubiculo !== null && n.ID_Cubiculo !== undefined
+                    ? ` · Cubículo ${n.ID_Cubiculo} · Piso ${n.Piso}`
+                    : ''}
                 </p>
               </div>
             </li>

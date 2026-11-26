@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 
 // Lista de integrantes con campo de lista desplegable (datalist) para invitar conocidos.
 // onAdd / onRemove pueden ser async y devuelven un mensaje de error o null.
@@ -13,10 +13,10 @@ export default function MemberPicker({
   readOnly = false,
   className = '',
 }) {
-  const listId = useId()
   const [valor, setValor] = useState('')
   const [error, setError] = useState('')
   const [ocupado, setOcupado] = useState(false)
+  const [enfocado, setEnfocado] = useState(false)
 
   const ejecutar = async (fn) => {
     setOcupado(true)
@@ -31,7 +31,10 @@ export default function MemberPicker({
     if (correo && (await ejecutar(() => onAdd(correo)))) setValor('')
   }
 
-  const disponibles = sugerencias.filter((s) => s !== titular && !miembros.includes(s))
+  const texto = valor.trim().toLowerCase()
+  const disponibles = sugerencias.filter(
+    (s) => s !== titular && !miembros.includes(s) && s.toLowerCase().includes(texto),
+  )
 
   return (
     <div className={`member-picker space-y-2 ${className}`}>
@@ -60,11 +63,12 @@ export default function MemberPicker({
       {!readOnly && (
         <div className="flex gap-2">
           <input
-            list={listId}
             type="email"
             aria-label="Correo institucional del integrante"
             value={valor}
             onChange={(e) => setValor(e.target.value)}
+            onFocus={() => setEnfocado(true)}
+            onBlur={() => setEnfocado(false)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -74,11 +78,6 @@ export default function MemberPicker({
             placeholder="Añadir por correo unimet..."
             className="member-picker-input min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
           />
-          <datalist id={listId}>
-            {disponibles.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
           <button
             type="button"
             disabled={ocupado}
@@ -89,6 +88,24 @@ export default function MemberPicker({
             {ocupado ? '…' : '+'}
           </button>
         </div>
+      )}
+      {!readOnly && enfocado && disponibles.length > 0 && (
+        <ul className="max-h-36 overflow-y-auto rounded-md border border-slate-200 bg-white text-sm">
+          {disponibles.map((s) => (
+            <li key={s}>
+              <button
+                type="button"
+                className="w-full truncate px-3 py-1.5 text-left hover:bg-slate-100"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  setValor(s)
+                }}
+              >
+                {s}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>

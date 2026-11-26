@@ -1,55 +1,57 @@
 import CubicleShape from './CubicleShape'
 import { estadoCubiculo } from '../../utils/time'
-import { posicionesDelPiso, REFERENCIAS } from '../../utils/plano'
 
-// El plano conserva las tarjetas de cubículo tal cual (clases seat-card): lo
-// único que cambia frente a la cuadrícula es DÓNDE se coloca cada una, usando
-// la posición física que viene en los datos.
+// Elementos fijos de cada piso, para orientarse como en la sala real.
+// Todo va en una cuadrícula CSS (no hay posiciones absolutas): nada se solapa
+// y el plano se reacomoda solo en laptop y en celular.
+const ABAJO = {
+  1: [
+    { tipo: 'mostrador', etiqueta: 'Atención' },
+    { tipo: 'entrada', etiqueta: 'Entrada' },
+    { tipo: 'escalera', etiqueta: 'Escalera' },
+  ],
+  2: [
+    { tipo: 'escalera', etiqueta: 'Escalera' },
+    { tipo: 'pasillo', etiqueta: 'Pasillo' },
+    { tipo: 'estanteria', etiqueta: 'Estanterías' },
+  ],
+}
+
 export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, seleccionado, favorito, esAdmin, onSelect }) {
   const delPiso = cubiculos
     .filter((c) => Number(c.Piso) === piso)
     .sort((a, b) => Number(a.ID_Cubiculo) - Number(b.ID_Cubiculo))
 
-  const { piezas } = posicionesDelPiso(delPiso)
-  const referencias = REFERENCIAS[piso] ?? []
-
-  const tarjetas = piezas.map(({ cub, x, y }) => {
-    const { estado, reserva } = estadoCubiculo(cub, reservas, fecha, hora)
-    const sel =
-      seleccionado && Number(seleccionado.Piso) === piso && seleccionado.ID_Cubiculo === cub.ID_Cubiculo
-    return (
-      <div
-        key={`${cub.Piso}-${cub.ID_Cubiculo}`}
-        className="floor-slot"
-        style={{ left: `${x}%`, top: `${y}%` }}
-      >
-        <CubicleShape
-          cub={cub}
-          estado={estado}
-          seleccionado={sel}
-          esFavorito={favorito === `${cub.Piso}-${cub.ID_Cubiculo}`}
-          onSelect={onSelect}
-          reservadoPor={esAdmin && reserva ? reserva.Correo_Estudiante : ''}
-        />
-      </div>
-    )
-  })
+  if (delPiso.length === 0) return <p className="map-message">No hay cubículos en este piso.</p>
 
   return (
-    <figure className="floor-figure">
-      <div className="floor-plan" role="group" aria-label={`Plano del piso ${piso}`}>
-        {referencias.map((r, i) => (
-          <div
-            key={`${r.tipo}-${i}`}
-            className={`floor-ref floor-ref-${r.tipo}`}
-            style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.ancho}%`, height: `${r.alto}%` }}
-            aria-hidden="true"
-          >
-            <span>{r.etiqueta}</span>
-          </div>
-        ))}
-        {tarjetas}
+    <div className="floor-plan" role="group" aria-label={`Plano del piso ${piso}`}>
+      <div className="floor-ref floor-ref-ventanal floor-top" aria-hidden="true"><span>Ventanales</span></div>
+      <div className="floor-ref floor-ref-estanteria floor-left" aria-hidden="true"><span>Estanterías</span></div>
+      <div className="floor-rooms">
+        {delPiso.map((cub) => {
+          const { estado, reserva } = estadoCubiculo(cub, reservas, fecha, hora)
+          const sel =
+            seleccionado && Number(seleccionado.Piso) === piso && seleccionado.ID_Cubiculo === cub.ID_Cubiculo
+          return (
+            <CubicleShape
+              key={`${cub.Piso}-${cub.ID_Cubiculo}`}
+              cub={cub}
+              estado={estado}
+              seleccionado={sel}
+              esFavorito={favorito === `${cub.Piso}-${cub.ID_Cubiculo}`}
+              onSelect={onSelect}
+              reservadoPor={esAdmin && reserva ? reserva.Correo_Estudiante : ''}
+            />
+          )
+        })}
       </div>
-    </figure>
+      <div className="floor-ref floor-ref-estanteria floor-right" aria-hidden="true"><span>Estanterías</span></div>
+      <div className="floor-bottom" aria-hidden="true">
+        {(ABAJO[piso] ?? ABAJO[1]).map((r) => (
+          <div key={r.tipo} className={`floor-ref floor-ref-${r.tipo}`}><span>{r.etiqueta}</span></div>
+        ))}
+      </div>
+    </div>
   )
 }

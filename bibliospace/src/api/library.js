@@ -143,7 +143,8 @@ export const crearReserva = (d) =>
     p_carnet: d.carnet,
   })
 
-export const cancelarReserva = (correo, id) => rpc('cancelar_reserva', { p_correo: correo, p_id: id })
+export const cancelarReserva = (correo, id) =>
+  rpc('cancelar_reserva_con_suspension', { p_correo: correo, p_id: id })
 
 // Un integrante sale de la reserva (si es el titular, se cancela). -> { status: 'ok', cancelada, mensaje }
 export const abandonarReserva = (correo, id) => rpc('abandonar_reserva', { p_correo: correo, p_id: id })
@@ -181,12 +182,17 @@ export const liberarCubiculo = (correo, piso, cubiculoId, motivo) =>
 // Notificaciones de la sesión actual, de la más reciente a la más antigua.
 // La base decide de quién son: no se le manda ningún correo, usa el de la sesión.
 export const obtenerNotificaciones = async (limite = 30) => {
-  const { data, error } = await supabase.rpc('listar_notificaciones', { p_limite: limite })
-  if (error) {
-    console.error('Error al leer las notificaciones:', error.message)
-    return []
+  const [reservasRes, suspensionesRes] = await Promise.all([
+    supabase.rpc('listar_notificaciones', { p_limite: limite }),
+    supabase.rpc('listar_notificaciones_suspensiones', { p_limite: limite }),
+  ])
+  if (reservasRes.error) {
+    console.error('Error al leer las notificaciones de reservas:', reservasRes.error.message)
   }
-  return data.map((n) => ({
+  if (suspensionesRes.error) {
+    console.error('Error al leer las notificaciones de suspensión:', suspensionesRes.error.message)
+  }
+  const reservas = (reservasRes.data ?? []).map((n) => ({
     ID: n.id,
     Tipo: n.tipo,
     Titulo: n.titulo,
@@ -196,6 +202,19 @@ export const obtenerNotificaciones = async (limite = 30) => {
     Fecha: n.marca_tiempo,
     No_Leida: n.no_leida,
   }))
+  const suspensiones = (suspensionesRes.data ?? []).map((n) => ({
+    ID: `suspension:${n.id}`,
+    Tipo: n.tipo,
+    Titulo: n.titulo,
+    Detalle: n.detalle,
+    ID_Cubiculo: null,
+    Piso: null,
+    Fecha: n.marca_tiempo,
+    No_Leida: n.no_leida,
+  }))
+  return [...reservas, ...suspensiones]
+    .sort((a, b) => new Date(String(b.Fecha).replace(' ', 'T')) - new Date(String(a.Fecha).replace(' ', 'T')))
+    .slice(0, limite)
 }
 
 // Marca todo lo anterior a este momento como leído. El contador queda en cero
@@ -218,4 +237,34 @@ export const obtenerLogAdmin = async (correo, limite = 20) => {
     Ocupantes: l.ocupantes ?? [],
     Fecha: l.marca_tiempo,
   }))
+}
+
+export const listarAlumnosModeracion = async (correo) => {
+  const res = await rpc('listar_alumnos_moderacion', { p_correo: correo })
+  return res.status === 'ok' ? { status: 'ok', valor: res.valor } : res
+}
+
+export const suspenderAlumno = (correo, alumno, motivo, dias) =>
+  rpc('suspender_alumno', {
+    p_correo: correo,
+    p_alumno: alumno,
+    p_motivo: motivo,
+    p_dias: dias,
+  })
+
+export const obtenerMiSuspension = async () => {
+  try {
+    const { data, error } = await supabase.rpc('estado_mi_suspension')
+    if (error) {
+      console.error('Error al consultar el estado de suspensión:', error.message)
+      return { status: 'error', mensaje: error.message }
+    }
+    return { status: 'ok', suspension: data?.[0] ?? null }
+  } catch (error) {
+    console.error('Error al consultar el estado de suspensión:', error)
+    return {
+      status: 'error',
+      mensaje: error instanceof Error ? error.message : 'No se pudo consultar la suspensión.',
+    }
+  }
 }
