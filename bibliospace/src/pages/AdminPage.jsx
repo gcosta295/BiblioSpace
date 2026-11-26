@@ -6,6 +6,7 @@ import AdminFloorMap from '../components/admin/AdminFloorMap'
 import BlockToggle from '../components/admin/BlockToggle'
 import RewardManagement from '../components/admin/RewardManagement'
 import ReleaseDialog from '../components/admin/ReleaseDialog'
+import StudentModeration from '../components/admin/StudentModeration'
 import { useAuth } from '../context/AuthContext'
 import { useLibrary } from '../hooks/useLibrary'
 import { aHoras, estadoCubiculo, hoyISO, horaActual, OCUPA } from '../utils/time'
@@ -32,6 +33,7 @@ const navItems = [
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
   { label: 'Recompensas', href: '#recompensas', icon: rewardsIcon },
+  { label: 'Moderación', href: '#moderacion', icon: navActivityIcon },
   { label: 'Configuración', href: '#registro', icon: settingsIcon },
 ]
 
@@ -703,6 +705,7 @@ export default function AdminPage() {
 
             <UsageChart reservations={reservas} date={hoy} />
             <RewardManagement correo={correo} />
+            <StudentModeration correo={correo} />
           </div>
 
           <div className="admin-secondary-column">

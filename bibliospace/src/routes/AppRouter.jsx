@@ -9,6 +9,7 @@ import LoginPage from '../pages/LoginPage'
 import PerfilPage from '../pages/PerfilPage'
 import RegisterPage from '../pages/RegisterPage'
 import RecompensasPage from '../pages/RecompensasPage'
+import NotificationsPage from '../pages/NotificationsPage'
 
 // Páginas que necesitan cuenta: sin sesión se manda al login y, al entrar, se vuelve a la página pedida.
 function RutaProtegida() {
@@ -42,6 +43,7 @@ export default function AppRouter() {
           <Route path="/mi-reserva" element={<MyReservationPage />} />
           <Route path="/perfil" element={<PerfilPage />} />
           <Route path="/historial" element={<HistoryPage />} />
+          <Route path="/notificaciones" element={<StudentRoute><NotificationsPage /></StudentRoute>} />
           <Route path="/recompensas" element={<StudentRoute><RecompensasPage /></StudentRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
         </Route>

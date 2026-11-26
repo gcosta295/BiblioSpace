@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { obtenerMiSuspension } from '../../api/library'
 import { useAuth } from '../../context/AuthContext'
+import { useNotifications } from '../../context/NotificationsContext'
 import { rangoPorHoras } from '../../utils/rewards'
 
-import ThemeToggle from './ThemeToggle'
 import { UserIcon } from '../auth/AuthIcons'
 import logoHeader from '../../assets/logo-header.png'
 import logoFooter from '../../assets/logo-footer.png'
 import notificationsIcon from '../../assets/rewards/notifications.svg'
 
 function PerfilMenu() {
-  const { correo, nombre, username, fotoPerfil, rol, cerrarSesion, horasRecompensas } = useAuth()
+  const { correo, nombre, rol, cerrarSesion, horasRecompensas } = useAuth()
+  const { noLeidas } = useNotifications()
   const [abierto, setAbierto] = useState(false)
 
   if (!correo) {
@@ -24,7 +26,7 @@ function PerfilMenu() {
     )
   }
 
-  const visible = username || nombre || correo.split('@')[0]
+  const visible = nombre || correo.split('@')[0]
   const iniciales = visible.split(' ').filter(Boolean).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase()
   const rango = rangoPorHoras(horasRecompensas.acumuladas)
   const colorRango = rango.color
@@ -36,7 +38,12 @@ function PerfilMenu() {
 
   return (
     <div className="profile" id="profile">
-      <img className="notification-icon" src={notificationsIcon} alt="" aria-hidden="true" />
+      {correo && rol !== 'admin' && (
+        <Link to="/notificaciones" className="notification-link" aria-label={`Notificaciones${noLeidas ? `, ${noLeidas} sin leer` : ''}`}>
+          <img className="notification-icon" src={notificationsIcon} alt="" aria-hidden="true" />
+          {noLeidas > 0 && <span className="notification-count">{noLeidas > 99 ? '99+' : noLeidas}</span>}
+        </Link>
+      )}
       <div className="profile-divider" />
       <button type="button" className="profile-button" aria-expanded={abierto} onClick={() => setAbierto((actual) => !actual)}>
         <span className="profile-copy">
@@ -53,14 +60,13 @@ function PerfilMenu() {
           style={rol === 'admin' ? undefined : { '--rank-color': colorRango }}
           aria-hidden="true"
         >
-          {fotoPerfil ? <img src={fotoPerfil} alt="" className="perfil-foto-avatar" /> : iniciales}
+          {iniciales}
           {rol !== 'admin' && <span className="profile-avatar-level">{rango.icono}</span>}
         </span>
       </button>
       {abierto && (
         <div className="profile-form profile-menu">
           <span className="profile-menu-correo">{correo}</span>
-          <Link to="/perfil" onClick={() => setAbierto(false)}>Editar perfil</Link>
           <button type="button" onClick={salir}>Cerrar sesión</button>
         </div>
       )}
@@ -71,9 +77,58 @@ function PerfilMenu() {
 const link = ({ isActive }) => `site-nav-link${isActive ? ' is-active' : ''}`
 
 export default function Layout() {
-  const { correo, rol } = useAuth()
+  const { correo, rol, perfilCargando } = useAuth()
   const { pathname } = useLocation()
   const adminDashboard = rol === 'admin' && pathname === '/admin'
+  const [estadoSuspension, setEstadoSuspension] = useState({ correo: '', suspension: null, error: '' })
+  const [ahora, setAhora] = useState(null)
+
+  useEffect(() => {
+    const actualizar = () => setAhora(Date.now())
+    const inicio = window.setTimeout(actualizar, 0)
+    const intervalo = window.setInterval(actualizar, 30000)
+    return () => {
+      window.clearTimeout(inicio)
+      window.clearInterval(intervalo)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!correo || perfilCargando || rol === 'admin') return undefined
+    let activo = true
+    const consultar = async () => {
+      const resultado = await obtenerMiSuspension()
+      if (!activo) return
+      if (resultado.status !== 'ok') {
+        setEstadoSuspension({
+          correo,
+          suspension: null,
+          error: resultado.mensaje || 'No se pudo consultar el estado de tu suspensión.',
+        })
+        return
+      }
+      setEstadoSuspension({ correo, suspension: resultado.suspension, error: '' })
+    }
+    consultar()
+    const intervalo = window.setInterval(consultar, 30000)
+    return () => {
+      activo = false
+      window.clearInterval(intervalo)
+    }
+  }, [correo, perfilCargando, rol])
+
+  const suspension = estadoSuspension.correo === correo ? estadoSuspension.suspension : null
+  const errorSuspension = estadoSuspension.correo === correo ? estadoSuspension.error : ''
+  const finSuspension = suspension?.suspendido_hasta
+    ? new Date(suspension.suspendido_hasta).toLocaleString('es-VE', { dateStyle: 'medium', timeStyle: 'short' })
+    : ''
+  const milisegundosRestantes = suspension?.suspendido_hasta
+    ? Math.max(0, new Date(suspension.suspendido_hasta).getTime() - (ahora ?? 0))
+    : 0
+  const horasRestantes = Math.ceil(milisegundosRestantes / 3600000)
+  const tiempoRestante = horasRestantes >= 24
+    ? `${Math.floor(horasRestantes / 24)} días y ${horasRestantes % 24} horas`
+    : `${horasRestantes} ${horasRestantes === 1 ? 'hora' : 'horas'}`
 
   return (
     <div className={`site-shell${adminDashboard ? ' admin-shell' : ''}`}>
@@ -89,12 +144,18 @@ export default function Layout() {
             {rol !== 'admin' && <NavLink to="/recompensas" className={link}>Recompensas</NavLink>}
             {rol === 'admin' && <NavLink to="/admin" className={link}>Administración</NavLink>}
           </nav>
-          <div className="site-header-actions">
-            <ThemeToggle />
-            <PerfilMenu />
-          </div>
+          <PerfilMenu />
         </div>
       </header>}
+      {suspension && !adminDashboard && (
+        <aside className="student-suspension-banner" role="status">
+          <strong>Reservas suspendidas</strong>
+          <span>{suspension.motivo} · {ahora === null ? 'Calculando el tiempo restante…' : `Te quedan ${tiempoRestante}`} · Podrás reservar nuevamente el {finSuspension}.</span>
+        </aside>
+      )}
+      {errorSuspension && !adminDashboard && (
+        <p className="student-suspension-error" role="alert">{errorSuspension}</p>
+      )}
       <main className={`site-main${pathname === '/recompensas' ? ' rewards-main' : ''}`}>
         <Outlet />
       </main>
