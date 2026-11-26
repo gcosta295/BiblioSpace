@@ -3196,3 +3196,210 @@ a.btn-login {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.admin-student-moderation {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.admin-student-moderation > .admin-panel-heading {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admin-student-moderation .admin-panel-heading p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.admin-moderation-search input {
+  width: min(250px, 42vw);
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+  font-size: 11px;
+}
+
+.admin-moderation-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-moderation-table th {
+  padding: 8px 7px;
+  color: #6b7280;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.admin-moderation-table td {
+  padding: 9px 7px;
+  border-top: 1px solid #f3f4f6;
+  color: #4b5563;
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+.admin-moderation-table td:first-child {
+  overflow-wrap: anywhere;
+}
+
+.admin-moderation-table td small {
+  display: block;
+  margin-top: 3px;
+  color: #6b7280;
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.admin-moderation-status.active {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.admin-moderation-button,
+.admin-moderation-actions button {
+  padding: 6px 9px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.admin-moderation-button:hover {
+  border-color: #b42318;
+  color: #b42318;
+}
+
+.admin-moderation-empty {
+  padding: 16px;
+  color: #6b7280;
+  font-size: 11px;
+  text-align: center;
+}
+
+.admin-moderation-form {
+  display: grid;
+  gap: 10px;
+  margin: 0 20px 10px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-moderation-form h3 {
+  margin: 0;
+  color: #212e84;
+  font-size: 12px;
+}
+
+.admin-moderation-form label {
+  display: grid;
+  gap: 5px;
+  color: #4b5563;
+  font-size: 10px;
+}
+
+.admin-moderation-form textarea,
+.admin-moderation-form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+}
+
+.admin-moderation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.admin-moderation-actions button[type="submit"],
+.admin-moderation-actions button:last-child {
+  border-color: #212e84;
+  background: #212e84;
+  color: #fff;
+  font-weight: 700;
+}
+
+.admin-moderation-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.student-suspension-banner,
+.student-suspension-error {
+  display: grid;
+  gap: 4px;
+  padding: 12px max(20px, calc((100% - 1152px) / 2));
+  background: #fff1f0;
+  color: #8f1d14;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notification-link {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: inherit;
+}
+
+.notification-count {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  place-items: center;
+  border-radius: 999px;
+  background: #b42318;
+  color: #fff;
+  font: 700 10px/1 Arial, sans-serif;
+}
+
+.student-suspension-error {
+  margin: 0;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+@media (max-width: 600px) {
+  .admin-student-moderation > .admin-panel-heading {
+    flex-direction: column;
+  }
+
+  .admin-moderation-search,
+  .admin-moderation-search input {
+    width: 100%;
+  }
+
+  .admin-moderation-form {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+
+  .student-suspension-banner,
+  .student-suspension-error {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+}

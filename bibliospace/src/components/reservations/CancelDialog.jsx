@@ -14,7 +14,9 @@ export default function CancelDialog({
     setEnviando(true);
     const res = await cancelarReserva(correo, reserva.ID_Reserva);
     setEnviando(false);
-    if (res.status === "ok") onCancelled("Reserva cancelada.");
+    if (res.status === "ok" && res.suspendida) {
+      onCancelled("Tus derechos de reserva quedaron suspendidos por exceder el límite de cancelaciones. Revisa las notificaciones para ver la duración.");
+    } else if (res.status === "ok") onCancelled("Reserva cancelada.");
     else {
       onError(res.mensaje || "No se pudo cancelar.");
       onClose();

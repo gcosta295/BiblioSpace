@@ -29,9 +29,11 @@ export function NotificationsProvider({ children }) {
     const alVolver = () => document.visibilityState === 'visible' && recargar()
     document.addEventListener('visibilitychange', alVolver)
     window.addEventListener('focus', alVolver)
+    const intervalo = window.setInterval(recargar, 30000)
     return () => {
       document.removeEventListener('visibilitychange', alVolver)
       window.removeEventListener('focus', alVolver)
+      window.clearInterval(intervalo)
     }
   }, [recargar])
 
