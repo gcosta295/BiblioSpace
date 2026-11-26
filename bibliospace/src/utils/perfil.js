@@ -6,14 +6,20 @@ export const telefonoParaGuardar = (telefono) => telefono.replace(/^0([1-9][0-9]
 
 export function validarDatosPerfil(username, telefono) {
   if ([...username].length > 12) return 'El nombre de usuario admite hasta 12 caracteres.'
+  if (username && /^\d+$/.test(username.replace(/\s+/g, ''))) {
+    return 'El nombre de usuario no puede estar compuesto solo por números.'
+  }
   if (telefono && !/^0[1-9][0-9]{9}$/.test(telefono)) {
-    return 'Escribe el número con el formato 04248856911.'
+    return 'Escribe el número con el formato 04248856911'
   }
   return ''
 }
 
 export async function comprobarFotoPerfil(archivo) {
-  if (archivo.size > MAX_FOTO_BYTES) return { error: 'La foto no debe pesar más de 1 MB.' }
+  if (!/\.(png|jpe?g)$/i.test(archivo.name)) {
+    return { error: 'No se pudo cargar el archivo. Selecciona una imagen JPG, JPEG o PNG válida.' }
+  }
+  if (archivo.size > MAX_FOTO_BYTES) return { error: 'No se pudo cargar la foto: no debe pesar más de 1 MB.' }
 
   const bytes = new Uint8Array(await archivo.slice(0, 8).arrayBuffer())
   const coincide = (firma) => firma.every((byte, indice) => bytes[indice] === byte)
@@ -23,5 +29,5 @@ export async function comprobarFotoPerfil(archivo) {
   if (/\.jpe?g$/i.test(archivo.name) && coincide([255, 216, 255])) {
     return { tipo: 'image/jpeg' }
   }
-  return { error: 'Selecciona una imagen JPG, JPEG o PNG válida.' }
+  return { error: 'No se pudo cargar el archivo. Selecciona una imagen JPG, JPEG o PNG válida.' }
 }

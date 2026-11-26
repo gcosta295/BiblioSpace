@@ -5,7 +5,7 @@ import { capacidadDe, CIERRE, MIN_PERSONAS, validarInvitado, validarReserva } fr
 import { conocidos, horaTexto } from '../../utils/time'
 import MemberPicker from './MemberPicker'
 
-const field = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
+const field = 'res-input w-full rounded-md px-3 py-2 text-sm'
 
 export default function ReservationModal({
   cub,
@@ -58,12 +58,12 @@ export default function ReservationModal({
       <form
         onSubmit={enviar}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-full w-full max-w-md space-y-3 overflow-y-auto rounded-t-2xl bg-white p-5 sm:rounded-2xl"
+        className="res-surface max-h-full w-full max-w-md space-y-3 overflow-y-auto rounded-t-2xl p-5 sm:rounded-2xl"
       >
-        <h2 className="text-lg font-semibold">
+        <h2 className="res-title text-lg font-semibold">
           Reservar cubículo {cub.ID_Cubiculo} · Piso {cub.Piso}
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="res-muted text-sm">
           {fecha} desde las {horaTexto(hora)}
         </p>
         <input
@@ -87,14 +87,14 @@ export default function ReservationModal({
           className={field}
         />
         <label className="block text-sm">
-          <span className="block text-slate-500">Duración</span>
+          <span className="res-muted block">Duración</span>
           <select value={duracion} onChange={(e) => setDuracion(Number(e.target.value))} className={field}>
             <option value={1}>1 hora</option>
             {hora + 2 <= CIERRE && <option value={2}>2 horas</option>}
           </select>
         </label>
         <div>
-          <p className="mb-1 text-sm text-slate-500">
+          <p className="res-muted mb-1 text-sm">
             Integrantes ({1 + miembros.length}/{capacidadDe(cub)}) · mínimo {MIN_PERSONAS}
           </p>
           <MemberPicker
@@ -105,9 +105,9 @@ export default function ReservationModal({
             onRemove={quitar}
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="res-error text-sm">{error}</p>}
         <div className="flex justify-end gap-2 pt-1">
-          <button type="button" onClick={onClose} className="rounded-md px-4 py-2 text-sm hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="res-btn-ghost rounded-md px-4 py-2 text-sm">
             Cancelar
           </button>
           <button disabled={enviando} className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">

@@ -208,7 +208,7 @@
 }
 
 .metric-rank .rewards-metric-label {
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
 }
 
 .rewards-metric strong {
@@ -226,7 +226,7 @@
 }
 
 .metric-rank strong {
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
   font-size: 16px;
 }
 
@@ -244,7 +244,7 @@
 }
 
 .metric-rank .rewards-metric-note {
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
 }
 
 .rewards-level-progress {
@@ -285,7 +285,7 @@
   padding: 2px 8px;
   border-radius: 9999px;
   background: var(--rank-color);
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
   font-size: 10px;
   font-weight: 700;
 }
@@ -349,8 +349,18 @@
 }
 
 .reward-tier-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
   font-size: 18px;
   line-height: 28px;
+}
+
+.reward-tier-icon .rank-icon-img {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle;
 }
 
 .reward-tier strong {
@@ -375,58 +385,58 @@
   padding: 1px 5px;
   border-radius: 4px;
   background: var(--rank-color);
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
   font-size: 8px;
   line-height: 13px;
 }
 
 .reward-tier-semilla {
   --rank-color: #9ec33e;
-  --rank-soft: #f5f9e8;
+  --rank-soft: light-dark(#f5f9e8, #24301c);
   border-color: var(--rank-color);
 }
 
 .reward-tier-flor {
   --rank-color: #e09ec1;
-  --rank-soft: #fbf1f6;
+  --rank-soft: light-dark(#fbf1f6, #352230);
   border-color: var(--rank-color);
 }
 
 .reward-tier-tuqueque {
   --rank-color: #61a779;
-  --rank-soft: #eef6f0;
+  --rank-soft: light-dark(#eef6f0, #1b3126);
   border-color: var(--rank-color);
 }
 
-.reward-tier-aguila {
-  --rank-color: #c08d78;
-  --rank-soft: #f8f2ef;
+.reward-tier-cuni {
+  --rank-color: #d98a4e;
+  --rank-soft: light-dark(#fdf3eb, #3a271a);
   border-color: var(--rank-color);
 }
 
 .reward-tier-oro {
   --rank-color: #ffd007;
-  --rank-soft: #fffbea;
+  --rank-soft: light-dark(#fffbea, #3a3118);
   border-color: var(--rank-color);
 }
 
 .reward-tier.is-current {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--rank-color);
+  box-shadow: 0 0 0 2px light-dark(#fff, var(--theme-surface)), 0 0 0 4px var(--rank-color);
   background: var(--rank-soft);
 }
 
-.reward-tier.is-current .reward-tier-hours,
-.reward-tier.is-current .reward-tier-status {
+.reward-tier.is-current .reward-tier-hours {
   color: light-dark(#334155, var(--theme-text-muted));
 }
 
 .reward-tier.is-current .reward-tier-status {
+  color: #1e293b;
   font-weight: 700;
 }
 
 .reward-tier.is-passed .reward-tier-status {
   background: var(--rank-color);
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
 }
 
 .reward-tier-marker {
@@ -436,7 +446,7 @@
   padding: 1px 4px;
   border-radius: 4px;
   background: var(--rank-color);
-  color: light-dark(#1e293b, var(--theme-text));
+  color: #1e293b;
   font-size: 8px;
   font-weight: 700;
 }

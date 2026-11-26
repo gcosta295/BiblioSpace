@@ -39,5 +39,10 @@
 }
 
 .perfil-accion:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.perfil-accion[aria-busy="true"] {
   cursor: wait;
 }

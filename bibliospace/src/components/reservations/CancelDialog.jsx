@@ -30,17 +30,17 @@ export default function CancelDialog({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-5"
+        className="res-surface w-full max-w-sm space-y-4 rounded-2xl p-5"
       >
-        <h2 className="text-lg font-semibold">¿Cancelar la reserva?</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="res-title text-lg font-semibold">¿Cancelar la reserva?</h2>
+        <p className="res-muted text-sm">
           El cubículo {reserva.ID_Cubiculo} (piso {reserva.Piso}) quedará libre
           para otros estudiantes.
         </p>
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm hover:bg-slate-100"
+            className="res-btn-ghost rounded-md px-4 py-2 text-sm"
           >
             Volver
           </button>

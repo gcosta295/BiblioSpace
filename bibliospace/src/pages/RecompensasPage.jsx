@@ -95,6 +95,13 @@ function ArbolSaman({ crecimiento }) {
   )
 }
 
+function IconoRango({ rango }) {
+  if (rango.imagen) {
+    return <img src={rango.imagen} alt="" className="rank-icon-img" aria-hidden="true" />
+  }
+  return rango.icono
+}
+
 function RangoCard({ rango, actual }) {
   const superado = rango.nivel < actual.nivel
   const activo = rango.nivel === actual.nivel
@@ -103,7 +110,7 @@ function RangoCard({ rango, actual }) {
   return (
     <div className={`reward-tier reward-tier-${rango.tono}${activo ? ' is-current' : ''}${superado ? ' is-passed' : ''}`}>
       {activo && <span className="reward-tier-marker">TÚ</span>}
-      <span className="reward-tier-icon" aria-hidden="true">{rango.icono}</span>
+      <span className="reward-tier-icon" aria-hidden="true"><IconoRango rango={rango} /></span>
       <strong>{rango.nombre}</strong>
       <span className="reward-tier-hours">{tope}</span>
       <span className="reward-tier-status">{superado ? 'Superado' : activo ? 'Activo' : 'Bloqueado'}</span>
@@ -273,7 +280,7 @@ export default function Recompensas() {
             </article>
             <article className={`rewards-metric metric-rank rank-${rango.tono}`} style={{ '--rank-color': rango.color }}>
               <span className="rewards-metric-label">Rango actual</span>
-              <strong>{rango.icono} {rango.nombre}</strong>
+              <strong><IconoRango rango={rango} /> {rango.nombre}</strong>
               <span className="rewards-metric-note">
                 Nivel {rango.nivel} ({rango.desde} – {rango.hasta ? `${rango.hasta - 1}` : '100+'} hrs)
               </span>
@@ -284,7 +291,7 @@ export default function Recompensas() {
             <div className="rewards-progress-heading">
               <strong>
                 {siguienteRango ? `Progreso a Nivel ${siguienteRango.nivel}:` : '¡Rango máximo alcanzado!'}
-                {siguienteRango && <span> {siguienteRango.icono} {siguienteRango.nombre}</span>}
+                {siguienteRango && <span> <IconoRango rango={siguienteRango} /> {siguienteRango.nombre}</span>}
               </strong>
               <span className="rewards-hours-left" style={{ '--rank-color': rango.color }}>
                 {siguienteRango ? `Te faltan ${faltan} horas` : '¡Felicitaciones!'}

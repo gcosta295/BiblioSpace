@@ -48,7 +48,7 @@ export default function CubicleMap({ cubiculos, reservas, piso, fecha, hora, sel
       </div>
       <div className="floor-ref floor-ref-estanteria floor-right" aria-hidden="true"><span>Estanterías</span></div>
       <div className="floor-bottom" aria-hidden="true">
-        {(ABAJO[piso] ?? ABAJO[1]).map((r) => (
+        {(ABAJO[Number(piso)] ?? ABAJO[1]).map((r) => (
           <div key={r.tipo} className={`floor-ref floor-ref-${r.tipo}`}><span>{r.etiqueta}</span></div>
         ))}
       </div>

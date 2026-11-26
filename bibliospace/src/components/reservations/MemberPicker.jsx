@@ -39,19 +39,19 @@ export default function MemberPicker({
   return (
     <div className={`member-picker space-y-2 ${className}`}>
       <ul className="space-y-1 text-sm">
-        <li className="flex items-center justify-between rounded-md bg-slate-100 px-3 py-1.5">
+        <li className="member-picker-item flex items-center justify-between rounded-md px-3 py-1.5">
           <span className="truncate" title={titularLabel}>{titularLabel}</span>
-          <span className="ml-2 text-xs text-slate-500">{titularSuffix}</span>
+          <span className="member-picker-suffix ml-2 text-xs">{titularSuffix}</span>
         </li>
         {miembros.map((m) => (
-          <li key={m} className="flex items-center justify-between rounded-md bg-slate-100 px-3 py-1.5">
+          <li key={m} className="member-picker-item flex items-center justify-between rounded-md px-3 py-1.5">
             <span className="truncate" title={m}>{m}</span>
             {!readOnly && (
               <button
                 type="button"
                 disabled={ocupado}
                 onClick={() => ejecutar(() => onRemove(m))}
-                className="ml-2 text-red-600 disabled:opacity-40"
+                className="res-error ml-2 disabled:opacity-40"
                 aria-label={`Quitar ${m}`}
               >
                 ✕
@@ -76,7 +76,7 @@ export default function MemberPicker({
               }
             }}
             placeholder="Añadir por correo unimet..."
-            className="member-picker-input min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="member-picker-input res-input min-w-0 flex-1 rounded-md px-3 py-2 text-sm"
           />
           <button
             type="button"
@@ -90,12 +90,12 @@ export default function MemberPicker({
         </div>
       )}
       {!readOnly && enfocado && disponibles.length > 0 && (
-        <ul className="max-h-36 overflow-y-auto rounded-md border border-slate-200 bg-white text-sm">
+        <ul className="member-picker-dropdown max-h-36 overflow-y-auto rounded-md text-sm">
           {disponibles.map((s) => (
             <li key={s}>
               <button
                 type="button"
-                className="w-full truncate px-3 py-1.5 text-left hover:bg-slate-100"
+                className="member-picker-option w-full truncate px-3 py-1.5 text-left"
                 onMouseDown={(e) => {
                   e.preventDefault()
                   setValor(s)
@@ -107,7 +107,7 @@ export default function MemberPicker({
           ))}
         </ul>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="res-error text-sm">{error}</p>}
     </div>
   )
 }

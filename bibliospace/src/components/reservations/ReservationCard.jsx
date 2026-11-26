@@ -109,17 +109,17 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
+    <div className="res-surface space-y-4 rounded-xl p-5">
       <div>
-        <h2 className="text-lg font-semibold">
+        <h2 className="res-title text-lg font-semibold">
           Cubículo {reserva.ID_Cubiculo} · Piso {reserva.Piso}
         </h2>
-        <p className="text-slate-600">
+        <p className="res-muted">
           {reserva.Fecha} · {reserva.Franja_Horaria}
         </p>
       </div>
       <div>
-        <p className="mb-1 text-sm text-slate-500">
+        <p className="res-muted mb-1 text-sm">
           Integrantes ({1 + miembros.length}/{capacidadDe(cub)})
         </p>
         <MemberPicker
@@ -130,12 +130,12 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
           onRemove={quitar}
           readOnly={!esTitular}
         />
-        {!esTitular && <p className="mt-2 text-xs text-slate-500">Solo el titular puede modificar o cancelar la reserva.</p>}
+        {!esTitular && <p className="res-muted mt-2 text-xs">Solo el titular puede modificar o cancelar la reserva.</p>}
       </div>
-      <section className="space-y-2 rounded-lg bg-slate-50 p-3" aria-label="Asistencia de la reserva">
+      <section className="res-subcard space-y-2 rounded-lg p-3" aria-label="Asistencia de la reserva">
         <h3 className="text-sm font-semibold">Check-in y check-out</h3>
         {asistencia.check_out_at ? (
-          <p className="text-sm text-emerald-700">
+          <p className="res-success text-sm">
             Asistencia completada · {horasGanadas === null ? 'horas acreditadas' : `${horasGanadas.toFixed(2)} horas acreditadas`}
           </p>
         ) : dentroHorario && !asistencia.check_in_at ? (
@@ -144,20 +144,20 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
           </button>
         ) : dentroHorario && asistencia.check_in_at ? (
           <>
-            <p className="text-sm text-slate-600">Check-in registrado. Marca tu salida al terminar.</p>
+            <p className="res-muted text-sm">Check-in registrado. Marca tu salida al terminar.</p>
             <button type="button" disabled={asistenciaEnviando} onClick={() => registrarAsistencia(false)} className="rounded-md bg-indigo-700 px-3 py-2 text-sm text-white disabled:opacity-50">
               {asistenciaEnviando ? 'Registrando…' : 'Registrar check-out'}
             </button>
           </>
         ) : (
-          <p className="text-sm text-slate-600">
+          <p className="res-muted text-sm">
             {asistencia.check_in_at ? 'El check-out debe registrarse antes de que termine la reserva.' : 'El check-in estará disponible durante el horario de la reserva.'}
           </p>
         )}
-        {asistenciaError && <p role="alert" className="text-sm text-red-600">{asistenciaError}</p>}
+        {asistenciaError && <p role="alert" className="res-error text-sm">{asistenciaError}</p>}
       </section>
       {!esTitular && (
-        <button onClick={abandonar} className="rounded-md border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+        <button onClick={abandonar} className="res-btn-danger rounded-md px-4 py-2 text-sm">
           Abandonar cubículo
         </button>
       )}
@@ -166,12 +166,12 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
           <button
             onClick={() => setCancelando(true)}
             disabled={!puedeCancelar(reserva) && !tieneProteccion}
-            className="rounded-md border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50 disabled:opacity-40"
+            className="res-btn-danger rounded-md px-4 py-2 text-sm disabled:opacity-40"
           >
             Cancelar reserva
           </button>
           {!puedeCancelar(reserva) && (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="res-muted mt-1 text-xs">
               {tieneProteccion
                 ? 'Tu protección de cancelación tardía se usará al cancelar.'
                 : `Solo se puede cancelar hasta ${CANCELAR_ANTES_MIN} minutos antes de que empiece.`}
@@ -179,7 +179,7 @@ export default function ReservationCard({ reserva, cub, reservas, correo, onChan
           )}
         </div>
       )}
-      {errorGlobal && <p className="text-sm text-red-600">{errorGlobal}</p>}
+      {errorGlobal && <p className="res-error text-sm">{errorGlobal}</p>}
       {cancelando && (
         <CancelDialog reserva={reserva} correo={correo} onClose={() => setCancelando(false)} onCancelled={onChanged} onError={setErrorGlobal} />
       )}

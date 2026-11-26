@@ -66,7 +66,8 @@ function PerfilMenu() {
           <span>{rol === 'admin' ? 'Administrador' : 'Estudiante'}</span>
           {rol !== 'admin' && (
             <span className={`profile-level-badge rank-${rango.tono}`} style={{ '--rank-color': colorRango }} title={rango.nombre}>
-              {`${rango.icono} Nivel ${rango.nivel}`}
+              {rango.imagen ? <img src={rango.imagen} alt="" className="rank-icon-img" aria-hidden="true" /> : rango.icono}
+              {` Nivel ${rango.nivel}`}
             </span>
           )}
         </span>
@@ -76,7 +77,11 @@ function PerfilMenu() {
           aria-hidden="true"
         >
           {fotoPerfil ? <img src={fotoPerfil} alt="" className="perfil-foto-avatar" /> : iniciales}
-          {rol !== 'admin' && <span className="profile-avatar-level">{rango.icono}</span>}
+          {rol !== 'admin' && (
+            <span className="profile-avatar-level">
+              {rango.imagen ? <img src={rango.imagen} alt="" className="rank-icon-img" aria-hidden="true" /> : rango.icono}
+            </span>
+          )}
         </span>
       </button>
       {abierto && (

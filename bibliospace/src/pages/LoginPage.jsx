@@ -33,7 +33,6 @@ export default function LoginPage() {
   const [verClave, setVerClave] = useState(false)
   const [recordar, setRecordar] = useState(true)
   const [error, setError] = useState('')
-  const [aviso, setAviso] = useState('')
   const [enviando, setEnviando] = useState(false)
 
   const esAdmin = pestana === 'admin'
@@ -49,12 +48,10 @@ export default function LoginPage() {
   const cambiarPestana = (nueva) => {
     setPestana(nueva)
     setError('')
-    setAviso('')
   }
 
   const enviar = async (e) => {
     e.preventDefault()
-    setAviso('')
     const problema = validarCorreoInstitucional(correo) || (clave ? null : 'Escribe tu contraseña.')
     if (problema) return setError(problema)
     setError('')
@@ -109,16 +106,7 @@ export default function LoginPage() {
           </label>
 
           <label className="auth-field">
-            <span className="auth-field-head">
-              Contraseña
-              <button
-                type="button"
-                className="auth-forgot"
-                onClick={() => setAviso('La recuperación de contraseña aún no está disponible. Contacta a la biblioteca.')}
-              >
-                ¿Olvidaste la clave?
-              </button>
-            </span>
+            <span className="auth-field-head">Contraseña</span>
             <span className="auth-input-wrap">
               <LockIcon className="auth-icon" />
               <input
@@ -144,7 +132,6 @@ export default function LoginPage() {
             Mantener sesión iniciada en este dispositivo
           </label>
 
-          {aviso && <p className="auth-note" role="status">{aviso}</p>}
           {error && <p className="auth-error" role="alert">{error}</p>}
 
           <button type="submit" className={`auth-submit${esAdmin ? ' is-admin' : ''}`} disabled={enviando}>

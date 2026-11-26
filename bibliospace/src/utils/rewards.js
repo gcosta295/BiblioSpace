@@ -1,8 +1,10 @@
+import cuniIcon from '../assets/rewards/cuni.png'
+
 export const RANGOS_RECOMPENSAS = [
   { nivel: 1, nombre: 'Semilla Samán', icono: '🌿', desde: 0, hasta: 20, tono: 'semilla', color: '#9ec33e' },
   { nivel: 2, nombre: 'Flor de Samán', icono: '🌸', desde: 20, hasta: 45, tono: 'flor', color: '#e09ec1' },
   { nivel: 3, nombre: 'Tuqueque de la Biblioteca', icono: '🦎', desde: 45, hasta: 75, tono: 'tuqueque', color: '#61a779' },
-  { nivel: 4, nombre: 'Águila Unimetana', icono: '🦅', desde: 75, hasta: 100, tono: 'aguila', color: '#c08d78' },
+  { nivel: 4, nombre: 'Cuni', icono: '🐆', imagen: cuniIcon, desde: 75, hasta: 100, tono: 'cuni', color: '#d98a4e' },
   { nivel: 5, nombre: 'Samán de Oro', icono: '🌳', desde: 100, hasta: null, tono: 'oro', color: '#ffd007' },
 ]
 

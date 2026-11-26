@@ -7,27 +7,31 @@ function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil
   const [username, setUsername] = useState(usernameInicial)
   const [telefono, setTelefono] = useState(() => telefonoParaMostrar(telefonoInicial))
   const [guardando, setGuardando] = useState(false)
-  const [mensaje, setMensaje] = useState('')
+  const [aviso, setAviso] = useState({ texto: '', error: false })
+  const camposVacios = !username.trim() && !telefono.trim()
 
   const guardar = async (evento) => {
     evento.preventDefault()
+    if (camposVacios) return
     const cambios = { username: username.trim(), telefono: telefono.trim() }
     const error = validarDatosPerfil(cambios.username, cambios.telefono)
     if (error) {
-      setMensaje(error)
+      setAviso({ texto: error, error: true })
       return
     }
     setGuardando(true)
-    setMensaje('')
+    setAviso({ texto: '', error: false })
     try {
       const resultado = await guardarDatosPerfil({ ...cambios, telefono: telefonoParaGuardar(cambios.telefono) })
       if (resultado.status === 'ok') {
         setUsername(resultado.username)
         setTelefono(telefonoParaMostrar(resultado.telefono))
+        setAviso({ texto: 'Perfil actualizado.', error: false })
+      } else {
+        setAviso({ texto: resultado.mensaje || 'No se pudo guardar el perfil.', error: true })
       }
-      setMensaje(resultado.status === 'ok' ? 'Perfil actualizado.' : resultado.mensaje)
     } catch {
-      setMensaje('No se pudo guardar el perfil. Intenta de nuevo.')
+      setAviso({ texto: 'No se pudo guardar el perfil. Intenta de nuevo.', error: true })
     } finally {
       setGuardando(false)
     }
@@ -50,10 +54,14 @@ function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil
             onChange={(e) => setTelefono(e.target.value)} disabled={guardando} />
         </span>
       </label>
-      <button className="perfil-accion" disabled={guardando}>
+      <button className="perfil-accion" disabled={guardando || camposVacios} aria-busy={guardando}>
         {guardando ? 'Guardando…' : 'Guardar cambios'}
       </button>
-      {mensaje && <p role="status">{mensaje}</p>}
+      {aviso.texto && (
+        <p className={aviso.error ? 'auth-error' : undefined} role={aviso.error ? 'alert' : 'status'}>
+          {aviso.texto}
+        </p>
+      )}
     </form>
   )
 }
@@ -61,24 +69,28 @@ function FormularioPerfil({ usernameInicial, telefonoInicial, guardarDatosPerfil
 export default function PerfilPage() {
   const { correo, username, telefono, fotoPerfil, perfilCargando, guardarDatosPerfil, guardarFotoPerfil } = useAuth()
   const [subiendo, setSubiendo] = useState(false)
-  const [mensaje, setMensaje] = useState('')
+  const [avisoFoto, setAvisoFoto] = useState({ texto: '', error: false })
 
   const cambiarFoto = async (evento) => {
     const archivo = evento.target.files?.[0]
     evento.target.value = ''
     if (!archivo) return
     setSubiendo(true)
-    setMensaje('')
+    setAvisoFoto({ texto: '', error: false })
     try {
       const { tipo, error } = await comprobarFotoPerfil(archivo)
       if (error) {
-        setMensaje(error)
+        setAvisoFoto({ texto: error, error: true })
         return
       }
       const resultado = await guardarFotoPerfil(archivo, tipo)
-      setMensaje(resultado.status === 'ok' ? 'Foto actualizada.' : resultado.mensaje)
+      if (resultado.status === 'ok') {
+        setAvisoFoto({ texto: 'Foto actualizada.', error: false })
+      } else {
+        setAvisoFoto({ texto: resultado.mensaje || 'No se pudo cargar la foto.', error: true })
+      }
     } catch {
-      setMensaje('No se pudo guardar la foto. Intenta de nuevo.')
+      setAvisoFoto({ texto: 'No se pudo cargar la foto. Intenta de nuevo.', error: true })
     } finally {
       setSubiendo(false)
     }
@@ -100,7 +112,11 @@ export default function PerfilPage() {
             </label>
             <small id="perfil-foto-ayuda">JPG, JPEG o PNG. Máximo 1 MB.</small>
             {subiendo && <p role="status">Subiendo foto…</p>}
-            {mensaje && <p role="status">{mensaje}</p>}
+            {avisoFoto.texto && (
+              <p className={avisoFoto.error ? 'auth-error' : undefined} role={avisoFoto.error ? 'alert' : 'status'}>
+                {avisoFoto.texto}
+              </p>
+            )}
           </div>
         </div>
         <FormularioPerfil key={correo} usernameInicial={username} telefonoInicial={telefono}

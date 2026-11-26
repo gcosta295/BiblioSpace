@@ -12,7 +12,6 @@ import { aHoras, estadoCubiculo, hoyISO, horaActual, OCUPA } from '../utils/time
 
 import logo from '../assets/admin/admin-bibliospace-logo.png'
 import searchIcon from '../assets/admin/search.svg'
-import notificationIcon from '../assets/admin/notification.svg'
 import trendUpIcon from '../assets/admin/trend-up.svg'
 import trendDownIcon from '../assets/admin/trend-down.svg'
 import keyIcon from '../assets/admin/table-key.svg'
@@ -28,6 +27,7 @@ import settingsIcon from '../assets/admin/nav-settings.svg'
 import rewardsIcon from '../assets/rewards/benefit-1.svg'
 
 const navItems = [
+  { label: 'Volver al Mapa', href: '/', icon: cubiclesIcon, page: true },
   { label: 'Dashboard', href: '/admin', icon: dashboardIcon, page: true },
   { label: 'Cubículos', href: '#cubiculos', icon: cubiclesIcon },
   { label: 'Log de Actividad', href: '#actividad', icon: navActivityIcon },
@@ -278,9 +278,9 @@ const downloadUsageJpg = (rows, month) => {
 
   const maximum = Math.max(1, ...rows.map((row) => row.count))
   const chartLeft = 90
-  const chartTop = 150
+  const chartTop = 175
   const chartWidth = 1050
-  const chartHeight = 430
+  const chartHeight = 405
   const slotWidth = rows.length ? chartWidth / rows.length : chartWidth
   context.strokeStyle = '#d1d5db'
   context.beginPath()
@@ -298,7 +298,7 @@ const downloadUsageJpg = (rows, month) => {
     context.fillStyle = '#212e84'
     context.font = '700 16px Arial'
     context.textAlign = 'center'
-    context.fillText(String(row.count), x + barWidth / 2, Math.max(chartTop + 20, y - 8))
+    context.fillText(String(row.count), x + barWidth / 2, y - 10)
     context.fillStyle = '#374151'
     context.font = '14px Arial'
     context.fillText(`P${row.floor} · C${row.cubicle}`, x + barWidth / 2, chartTop + chartHeight + 28)
@@ -516,15 +516,19 @@ export default function AdminPage() {
         </nav>
 
         <div className="admin-sidebar-brand">
-          <img src={logo} alt="BiblioSpace — Biblioteca Universidad Metropolitana" />
+          <NavLink to="/" aria-label="Volver al mapa de cubículos">
+            <img src={logo} alt="BiblioSpace — Biblioteca Universidad Metropolitana" />
+          </NavLink>
         </div>
         <div className="admin-sidebar-profile">
           <span className="admin-profile-copy">
             <strong>{adminName}</strong>
             <span>Administrador</span>
           </span>
-          <NavLink to="/perfil" className="admin-logout">Editar perfil</NavLink>
-          <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
+          <div className="admin-sidebar-actions">
+            <NavLink to="/perfil" className="admin-logout">Editar perfil</NavLink>
+            <button type="button" className="admin-logout" onClick={cerrarSesion}>Cerrar sesión</button>
+          </div>
         </div>
       </aside>
 
@@ -546,10 +550,6 @@ export default function AdminPage() {
                 aria-label="Buscar cubículo o usuario"
               />
             </label>
-            <a className="admin-notifications" href="#actividad" aria-label="Ver log de actividad">
-              <img src={notificationIcon} alt="" />
-              {recentActivities.length > 0 && <span className="admin-notification-dot" />}
-            </a>
           </div>
         </header>
 
