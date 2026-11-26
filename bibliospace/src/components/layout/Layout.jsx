@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { obtenerMiSuspension } from '../../api/library'
 import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../context/NotificationsContext'
 import { rangoPorHoras } from '../../utils/rewards'
@@ -98,58 +97,9 @@ function PerfilMenu() {
 const link = ({ isActive }) => `site-nav-link${isActive ? ' is-active' : ''}`
 
 export default function Layout() {
-  const { correo, rol, perfilCargando } = useAuth()
+  const { correo, rol } = useAuth()
   const { pathname } = useLocation()
   const adminDashboard = rol === 'admin' && pathname === '/admin'
-  const [estadoSuspension, setEstadoSuspension] = useState({ correo: '', suspension: null, error: '' })
-  const [ahora, setAhora] = useState(null)
-
-  useEffect(() => {
-    const actualizar = () => setAhora(Date.now())
-    const inicio = window.setTimeout(actualizar, 0)
-    const intervalo = window.setInterval(actualizar, 30000)
-    return () => {
-      window.clearTimeout(inicio)
-      window.clearInterval(intervalo)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!correo || perfilCargando || rol === 'admin') return undefined
-    let activo = true
-    const consultar = async () => {
-      const resultado = await obtenerMiSuspension()
-      if (!activo) return
-      if (resultado.status !== 'ok') {
-        setEstadoSuspension({
-          correo,
-          suspension: null,
-          error: resultado.mensaje || 'No se pudo consultar el estado de tu suspensión.',
-        })
-        return
-      }
-      setEstadoSuspension({ correo, suspension: resultado.suspension, error: '' })
-    }
-    consultar()
-    const intervalo = window.setInterval(consultar, 30000)
-    return () => {
-      activo = false
-      window.clearInterval(intervalo)
-    }
-  }, [correo, perfilCargando, rol])
-
-  const suspension = estadoSuspension.correo === correo ? estadoSuspension.suspension : null
-  const errorSuspension = estadoSuspension.correo === correo ? estadoSuspension.error : ''
-  const finSuspension = suspension?.suspendido_hasta
-    ? new Date(suspension.suspendido_hasta).toLocaleString('es-VE', { dateStyle: 'medium', timeStyle: 'short' })
-    : ''
-  const milisegundosRestantes = suspension?.suspendido_hasta
-    ? Math.max(0, new Date(suspension.suspendido_hasta).getTime() - (ahora ?? 0))
-    : 0
-  const horasRestantes = Math.ceil(milisegundosRestantes / 3600000)
-  const tiempoRestante = horasRestantes >= 24
-    ? `${Math.floor(horasRestantes / 24)} días y ${horasRestantes % 24} horas`
-    : `${horasRestantes} ${horasRestantes === 1 ? 'hora' : 'horas'}`
 
   return (
     <div className={`site-shell${adminDashboard ? ' admin-shell' : ''}`}>
@@ -171,15 +121,6 @@ export default function Layout() {
           </div>
         </div>
       </header>}
-      {suspension && !adminDashboard && (
-        <aside className="student-suspension-banner" role="status">
-          <strong>Reservas suspendidas</strong>
-          <span>{suspension.motivo} · {ahora === null ? 'Calculando el tiempo restante…' : `Te quedan ${tiempoRestante}`} · Podrás reservar nuevamente el {finSuspension}.</span>
-        </aside>
-      )}
-      {errorSuspension && !adminDashboard && (
-        <p className="student-suspension-error" role="alert">{errorSuspension}</p>
-      )}
       <main className={`site-main${pathname === '/recompensas' ? ' rewards-main' : ''}`}>
         <Outlet />
       </main>
